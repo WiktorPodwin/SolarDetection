@@ -1,7 +1,6 @@
 import logging
 import os
 from attrs import define
-import ee
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -148,9 +147,9 @@ class BrowserOperations:
             )
 
 
-class GoogleEarthEngine:
-    """Class For initializing Earth Engine"""
+# class GoogleEarthEngine:
+#     """Class For initializing Earth Engine"""
 
-    def __init__(self) -> None:
-        ee.Authenticate()
-        ee.Initialize(project=os.getenv("GCP_PROJECT_ID"))
+#     def __init__(self) -> None:
+#         ee.Authenticate()
+#         ee.Initialize(project=os.getenv("GCP_PROJECT_ID"))
