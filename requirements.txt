@@ -1,0 +1,6 @@
+selenium==4.25.0
+webdriver-manager==4.0.2
+
+# Probably won't be implemented
+# earthengine-api
+# geemap==0.34.5
