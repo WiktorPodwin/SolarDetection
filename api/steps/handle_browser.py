@@ -1,7 +1,7 @@
 import logging
-from selenium import webdriver
-
 from src.browser_operations import BrowserInitiation, BrowserOperations
+from src.data_operations import DirectoryOperations
+from src.convert_symbols import ConvertSymbols
 
 class MapException(BaseException):
     pass
@@ -30,19 +30,44 @@ class MapOperations:
         except MapException as e:
             logging.error("Error in map preparing: %s", e)
 
-    def find_plot(self):
+    def handle_plot(self, plot_id: str = None):
         """
-        Search for specified plot
+        Manages browser to get specified plot and take screenshot of it
+
+        Args:
+            plot_id: Unique identificator of plot
         """
         try:
             browse_oper = BrowserOperations(self.driver)
+            # Search button
             browse_oper.find_by_id("szukaj_dzialki_north")
+            # Search iframe
             browse_oper.switch_iframe("frame_szukaj_dzgb")
-            # browse_oper.find_by_class_name('ui-button-icon-primary ui-icon marker1')
-            browse_oper.input_text("iddz", "022305_2.0010.9/2")
+            # Search plot
+            browse_oper.input_text("iddz", plot_id)
+            # Default iframe
             browse_oper.switch_to_default_iframe()
-            browse_oper.find_by_id("button_rozwin_27")
-            browse_oper.find_by_id("check_widoczna_29")
-            browse_oper.find_by_id("check_widoczna_30")
+            # Unmark checkbox 
+            browse_oper.find_by_id("check_widoczna_25", False)
+            # Unmark checkbox 
+            browse_oper.find_by_id("check_widoczna_27", False)
+
+            dir_oper = DirectoryOperations()
+            dir_oper.create_directory("../data/images")
+
+            convert_symbols = ConvertSymbols()
+            new_id = convert_symbols.slash_into_dash(plot_id)
+
+            browse_oper.take_screenshot("map_canvas", "../data/images/", new_id)
         except MapException as e:
             logging.error("Error in plot searching: %s", e)
+    
+    def quit_map(self) -> None:
+        """
+        Closes the window with opened map
+        """
+        try:
+            self.browser_operation.close_service()
+        except MapException as e:
+            logging.error("Error in closing the service: %s", e)
+

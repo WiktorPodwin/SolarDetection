@@ -9,6 +9,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
+import time
 
 
 @define
@@ -72,17 +73,22 @@ class BrowserOperations:
         except BrowserException as e:
             logging.error("Error while closing service: %s", e)
 
-    def find_by_id(self, element_id: str) -> None:
+    def find_by_id(self, element_id: str, checkbox_selected: bool = None) -> None:
         """
         Clicks on an element by specified ID
 
         Args:
-            element_id: Id of searched element
+            element_id: ID of searched element
+            checkbox_selected: True if checkbox needs to be selected, False otherweise
         """
         try:
-            WebDriverWait(self.driver, 10).until(
+            if checkbox_selected is not None:
+                time.sleep(1.5)
+            object = WebDriverWait(self.driver, 10).until(
                 EC.element_to_be_clickable((By.ID, element_id))
-            ).click()
+            )
+            if checkbox_selected is None or (checkbox_selected == True and object.is_selected() == False) or (checkbox_selected == False and object.is_selected() == True):
+                object.click()
         except BrowserException as e:
             logging.error("Error while searching by id %s: %s", element_id, e)
 
@@ -145,6 +151,27 @@ class BrowserOperations:
             logging.error(
                 "Error while inserting text to the element %s: %s", element_id, e
             )
+    
+    def take_screenshot(self, element_id: str, directory_path: str, file_name: str) -> None:
+        """
+        Takes a screenshot of selected element and saves into specified path
+        
+        Args:
+            element_id: ID of element to select
+            directory_path: Path to the directory which will store image
+            file_name: Name of file to save the image
+        """
+        try:
+            element = WebDriverWait(self.driver, 10).until(
+                EC.visibility_of_element_located((By.ID, element_id))
+            )
+            full_path = directory_path + file_name + ".png"
+            element.screenshot(full_path)
+        except BrowserException as e:
+            logging.error(
+                "Error in a screenshot process: %s", e
+                )
+
 
 
 # class GoogleEarthEngine:
