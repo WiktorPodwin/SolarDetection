@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Satellite Image Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+  <div id="map" style="height: 600px; width: 100%;"></div>
+  <!-- <img id="exported-image" src="" alt="Exported Satellite Image" style="display: none; max-width: 100%; height: auto; margin-top: 20px;">
+
+  <script>
+    // Fetch the exported image bytes from FastAPI backend
+    fetch('http://127.0.0.1:8000/api/image')
+      .then(response => response.blob())
+      .then(blob => {
+        const imgElement = document.getElementById('exported-image');
+        const url = URL.createObjectURL(blob);
+        imgElement.src = url;
+        imgElement.style.display = 'block';
+      })
+      .catch(err => console.error("Failed to fetch exported image:", err));
+  </script> -->
+  <script>
+    /**
+     * Function to mask clouds using the Sentinel-2 QA band
+     * @param {ee.Image} image Sentinel-2 image
+     * @return {ee.Image} cloud masked Sentinel-2 image
+     */
+    // function maskS2clouds(image) {
+    //   var qa = image.select('QA60');
+
+    //   // Bits 10 and 11 are clouds and cirrus, respectively.
+    //   var cloudBitMask = 1 << 10;
+    //   var cirrusBitMask = 1 << 11;
+
+    //   // Both flags should be set to zero, indicating clear conditions.
+    //   var mask = qa.bitwiseAnd(cloudBitMask).eq(0)
+    //       .and(qa.bitwiseAnd(cirrusBitMask).eq(0));
+
+    //   return image.updateMask(mask).divide(10000);
+    // }
+
+    // var dataset = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')
+    //                   .filterDate('2020-01-01', '2020-01-30')
+    //                   // Pre-filter to get less cloudy granules.
+    //                   .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE',20))
+    //                   .map(maskS2clouds);
+
+    // var visualization = {
+    //   min: 0.0,
+    //   max: 0.3,
+    //   bands: ['B4', 'B3', 'B2'],
+    // };
+
+    // Map.setCenter(83.277, 17.7009, 12);
+
+    // Map.addLayer(dataset.mean(), visualization, 'RGB');
+
+
+    // Initialize the map
+    var map = L.map('map').setView([34.1, -118.2], 12);  // Los Angeles area
+
+    // Add a base layer (Optional)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19
+    }).addTo(map);
+
+    // Fetch the satellite image tile URL from FastAPI backend
+    fetch('http://127.0.0.1:8000/api/satellite-map')
+      .then(response => response.json())
+      .then(data => {
+        // Add GEE satellite tile layer to the map
+        L.tileLayer(data.tile_url, {
+          attribution: 'Google Earth Engine - Harmonized Sentinel-2',
+          maxZoom: 18,
+          tileSize: 256
+        }).addTo(map);
+      })
+      .catch(err => console.error("Failed to fetch GEE image:", err));
+  </script>
+</body>
+</html>
+
+
+<!-- Google Maps API -->
+<!-- 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Maps with Earth Engine</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+    <script>
+      function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 12,
+          center: {lat: 34.1, lng: -118.2}
+        });
+
+        var tileLayer = new google.maps.ImageMapType({
+          getTileUrl: function(coord, zoom) {
+            return 'https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/maps/{mapid}/tiles/' +
+                   zoom + '/' + coord.x + '/' + coord.y;
+          },
+          tileSize: new google.maps.Size(256, 256),
+          maxZoom: 18,
+          name: 'Earth Engine'
+        });
+
+        map.overlayMapTypes.insertAt(0, tileLayer);
+      }
+    </script>
+</head>
+<body onload="initMap()">
+  <div id="map" style="height: 500px; width: 100%;"></div>
+</body>
+</html>
+
+-->

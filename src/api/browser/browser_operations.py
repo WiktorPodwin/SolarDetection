@@ -145,11 +145,3 @@ class BrowserOperations:
             logging.error(
                 "Error while inserting text to the element %s: %s", element_id, e
             )
-
-
-# class GoogleEarthEngine:
-#     """Class For initializing Earth Engine"""
-
-#     def __init__(self) -> None:
-#         ee.Authenticate()
-#         ee.Initialize(project=os.getenv("GCP_PROJECT_ID"))

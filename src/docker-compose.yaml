@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      dockerfile: Dockerfile
+    image: solar-detection-app
+    ports:
+      - "${PORT}:8000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env

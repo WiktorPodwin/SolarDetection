@@ -1,6 +1,10 @@
 selenium==4.25.0
 webdriver-manager==4.0.2
 
+# FastAPI
+fastapi==0.115.2
+uvicorn==0.32.0
+
 # Probably won't be implemented
-# earthengine-api
-# geemap==0.34.5
+earthengine-api
+geemap==0.34.5

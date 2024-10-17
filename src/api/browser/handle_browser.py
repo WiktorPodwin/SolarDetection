@@ -1,7 +1,7 @@
 import logging
 from selenium import webdriver
 
-from src.browser_operations import BrowserInitiation, BrowserOperations
+from .browser_operations import BrowserInitiation, BrowserOperations
 
 class MapException(BaseException):
     pass
