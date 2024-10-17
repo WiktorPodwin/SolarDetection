@@ -1,22 +1,41 @@
+import logging
 import pandas as pd
-from steps.handle_browser import MapOperations
-from src.data_operations import DirectoryOperations
+import selenium.common
+from .src import DirectoryOperations, MapOperations, GSOperations
 
-def plot(csv_file: str = "../data/plots.csv", website: str = 'https://polska.geoportal2.pl/map/www/mapa.php?mapa=polska'):
+
+def plot(
+    csv_file: str = "",
+    website: str = "",
+    images_dir: str = "",
+):
+    plot_id = "281411_2.0001.295"
     df = pd.read_csv(csv_file, skipinitialspace=True)
-    print(df.head())
+    logging.debug(df.head())
 
     dir_oper = DirectoryOperations()
-    dir_oper.create_directory("../data/images/")
-    dir_oper.clear_directory("../data/images/")
+    dir_oper.create_directory(images_dir)
+    dir_oper.clear_directory(images_dir)
 
-    map_oper = MapOperations(website=website)
+    map_oper = MapOperations(website=website, image_path=images_dir)
     map_oper.prepare_map()
 
-    for plot_id in df["id"]:
-        map_oper.handle_plot(plot_id)
+    for i in range(0, 100):
+        try:
+            map_oper.handle_plot(f"{plot_id}/{i}")
+        except selenium.common.exceptions.UnexpectedAlertPresentException:
+            print("Alert present")
 
     map_oper.quit_map()
 
-if __name__ == "__main__":
-    plot()
+
+def upload_to_gs(
+    project_id: str = "",
+    bucket_name: str = "",
+    source_file_path: str = "",
+    destination_blob_name: str = "",
+):
+    gs_oper = GSOperations(project_id=project_id, bucket_name=bucket_name)
+    gs_oper.upload_file(
+        source_file_path=source_file_path, destination_blob_name=destination_blob_name
+    )
