@@ -1,7 +1,7 @@
 import logging
 import pandas as pd
 import selenium.common
-from .src import DirectoryOperations, MapOperations, GSOperations
+from .src.operations import DirectoryOperations, MapOperations, GSOperations
 
 
 def plot(
