@@ -91,8 +91,8 @@ class BrowserOperations:
             )
             if (
                 checkbox_selected is None
-                or (checkbox_selected == True and obj.is_selected() == False)
-                or (checkbox_selected == False and obj.is_selected() == True)
+                or (checkbox_selected and obj.is_selected() is False)
+                or (not checkbox_selected and obj.is_selected() is True)
             ):
                 obj.click()
         except BrowserException as e:
