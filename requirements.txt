@@ -1,5 +1,6 @@
 selenium==4.25.0
 webdriver-manager==4.0.2
+opencv-python-headless==4.10.0.84
 
 # Probably won't be implemented
 # earthengine-api
