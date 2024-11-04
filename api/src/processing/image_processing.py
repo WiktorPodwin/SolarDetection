@@ -1,23 +1,10 @@
 """
 # Example usage:
-image_path = "example.png"
-
-# Frame samples
-frame_color = (76, 146, 207)
-frame_color = (76, 146, 207)
-frame_color = (87, 149, 179)
-frame_color = (79, 153, 214)
-# More or less blue frame
+image_path = "data/images/281411_2.0001.295_6.png"
+output_path = "data/result2_image.png"
 frame_color = (80, 150, 200)
 
-# Black frame
-frame_color = (0, 0, 0)
-
-output_path = "output/example.png"
-
-cut_outside_red_area(image_path, output_path)
-remove_red_filter(image_path, output_path)
-remove_outside_frame(image_path, frame_color, output_path)
+remove_outside_frame(image_path, frame_color, output_path, tolerance=60)
 """
 
 from typing import Tuple
@@ -35,13 +22,19 @@ def remove_outside_frame(
     frame_color: Tuple[int, int, int],
     output_path: str,
     tolerance: int = 0,
-):
-    """removes all elements outside the frame, excluding elements of the same color as a frame is.
-
+    noise_removal_kernel_size: int = 3,
+    iterations: int = 9
+    ):
+    """
+    Removes all elements outside the frame, including noise reduction for isolated pixels.
+    
     Args:
         image_path (str): Path to the input image.
         frame_color (tuple): 3 element tuple representing the RGB color of the frame.
         output_path (str): Path where the output image will be saved.
+        tolerance (int): Tolerance for color matching in frame detection.
+        noise_removal_kernel_size (int): Size of the kernel for noise removal. Larger kernels remove more noise.
+        iterations (int): Number of iterations in erosion
     """
     image = cv2.imread(image_path)
     # Convert the frame color from RGB to BGR (since OpenCV uses BGR)
@@ -61,17 +54,17 @@ def remove_outside_frame(
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     # Create a mask of zeros (black image)
     frame_mask = np.zeros_like(image)
-
     # Draw the contours on the mask
     cv2.drawContours(frame_mask, contours, -1, (255, 255, 255), thickness=cv2.FILLED)
-    # Create an alpha channel based on the mask (255 inside the frame, 0 outside)
-    alpha_channel = np.where(
-        cv2.cvtColor(frame_mask, cv2.COLOR_BGR2GRAY) > 0, 255, 0
-    ).astype(np.uint8)
-    # Add the alpha channel to the original image
-    image_with_alpha = cv2.merge(
-        [image[:, :, 0], image[:, :, 1], image[:, :, 2], alpha_channel]
-    )
+
+    gray_mask = cv2.cvtColor(frame_mask, cv2.COLOR_BGR2GRAY)
+
+    kernel = np.ones((noise_removal_kernel_size, noise_removal_kernel_size), np.uint8)
+    eroded = cv2.erode(gray_mask, kernel, iterations=iterations)
+
+    # Create an alpha channel based on the final cleaned mask
+    alpha_channel = np.where(eroded > 0, 255, 0).astype(np.uint8)
+    image_with_alpha = cv2.merge([image[:, :, 0], image[:, :, 1], image[:, :, 2], alpha_channel])
 
     print(f"Saving the output to {output_path}")
     cv2.imwrite(output_path, image_with_alpha)

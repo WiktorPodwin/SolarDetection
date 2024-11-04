@@ -29,6 +29,7 @@ class MapOperations:
             browser_oper = BrowserOperations(self.driver)
             browser_oper.find_by_class_name(class_name="ui-dialog-buttonset")
             browser_oper.find_by_id(element_id="check_widoczna_8")
+            browser_oper.find_by_id("button_rozwin_27")
         except MapException as e:
             logging.error("Error in map preparing: %s", e)
 
@@ -51,12 +52,22 @@ class MapOperations:
             browse_oper.switch_to_default_iframe()
             # Unmark checkbox
             browse_oper.find_by_id("check_widoczna_25", False)
-            # Unmark checkbox
-            browse_oper.find_by_id("check_widoczna_27", False)
+            # Unmark checkboxes
+            browse_oper.find_by_id("check_widoczna_29", False)
+            browse_oper.find_by_id("check_widoczna_30", False)
+            # Search button
+            browse_oper.find_by_id("szukaj_dzialki_north")
+            # Search iframe
+            browse_oper.switch_iframe("frame_szukaj_dzgb")
+            # Clean mark
+            browse_oper.find_by_id("wyczysc_marker")
+            # Default iframe
+            browse_oper.switch_to_default_iframe()
+            # Close search window
+            browse_oper.find_element_by_xpath("/html/body/div[35]/div[1]/a/span")            
 
             dir_oper = DirectoryOperations()
             dir_oper.create_directory(self.image_path)
-
 
             browse_oper.take_screenshot("map_canvas", self.image_path, plot_id.replace("/", "_"))
         except MapException as e:

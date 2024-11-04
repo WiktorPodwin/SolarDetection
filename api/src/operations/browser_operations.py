@@ -113,8 +113,22 @@ class BrowserOperations:
             logging.error(
                 "Error while searching element by class name %s: %s", class_name, e
             )
+    
+    def find_element_by_xpath(self, xpath: str) -> None:
+        """
+        Clicks on element by specified XPath
 
-    def switch_iframe(self, element_id) -> None:
+        Args:
+            xpath: XPath of searched element
+        """
+        try:
+            self.driver.find_element(By.XPATH, xpath).click()
+        except BrowserException as e:
+            logging.error(
+                "Error while searching element by XPath %s: %s", xpath, e
+            )    
+
+    def switch_iframe(self, element_id: str) -> None:
         """
         Switches iframe to the specified one
 
@@ -170,6 +184,7 @@ class BrowserOperations:
             file_name: Name of file to save the image
         """
         try:
+            time.sleep(4)
             element = WebDriverWait(self.driver, 10).until(
                 EC.visibility_of_element_located((By.ID, element_id))
             )
