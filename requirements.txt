@@ -1,6 +1,5 @@
 selenium==4.25.0
 webdriver-manager==4.0.2
-opencv-python-headless==4.10.0.84
 torch==2.5.1
 torchvision
 timm
@@ -8,9 +7,18 @@ pillow-heif==0.20.0
 # Apple model requires older version of numpy
 numpy<2
 
+# Google Cloud
+google-cloud-storage>=2.18.2
+
 # FastAPI
-fastapi==0.115.2
-uvicorn==0.32.0
+fastapi>=0.115.2
+uvicorn>=0.32.0
+
+# For development
+opencv-python==4.10.0.84
+
+# For production
+# opencv-python-headless==4.10.0.84
 
 # Probably won't be implemented
 # earthengine-api
