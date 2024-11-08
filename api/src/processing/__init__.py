@@ -1,1 +1,0 @@
-from .image_processing import remove_outside_frame

@@ -20,7 +20,8 @@ class DirectoryOperations:
         """
         try:
             files = glob.glob(directory_path + "/*")
-            return files
+            file_names = [os.path.basename(file) for file in files]
+            return file_names
         except FileNotFoundError:
             logging.error("Directory %s not found", directory_path)
             return []
