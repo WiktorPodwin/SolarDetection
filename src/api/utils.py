@@ -2,6 +2,7 @@ import logging
 from typing import List
 import pandas as pd
 import selenium.common
+import torch
 from .operations import DirectoryOperations, MapOperations, GSOperations
 
 def plot(
@@ -38,5 +39,15 @@ def upload_to_gs(
 ):
     gs_oper = GSOperations(project_id=project_id, bucket_name=bucket_name)
     gs_oper.upload_file(
-        source_file_path=source_file_path, destination_blob_name=destination_blob_name
+        source_file=source_file_path, destination_blob_name=destination_blob_name
     )
+
+
+def get_torch_device() -> torch.device:
+    """Get the Torch device."""
+    device = torch.device("cpu")
+    if torch.cuda.is_available():
+        device = torch.device("cuda:0")
+    elif torch.backends.mps.is_available():
+        device = torch.device("mps")
+    return device

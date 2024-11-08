@@ -10,7 +10,8 @@ class DirectoryOperations:
     Class to handle directory operations
     """
 
-    def list_directory(self, directory_path: str) -> list:
+    @staticmethod
+    def list_directory(directory_path: str) -> list:
         """
         Lists all files in the directory
 
@@ -29,7 +30,8 @@ class DirectoryOperations:
             logging.error("Error while listing files in %s: %s", directory_path, e)
             return []
 
-    def create_directory(self, directory_path: str) -> None:
+    @staticmethod
+    def create_directory(directory_path: str) -> None:
         """
         Creates a directory
 
@@ -41,7 +43,8 @@ class DirectoryOperations:
         except OSError as e:
             logging.error("Error in creating directory %s: %s", directory_path, e)
 
-    def clear_directory(self, directory_path: str) -> None:
+    @staticmethod
+    def clear_directory(directory_path: str) -> None:
         """
         Deletes all files from directory
 
@@ -69,24 +72,53 @@ class GSOperations:
         self.client = storage.Client(project_id)
         self.bucket = self.client.get_bucket(bucket_name)
 
-    def upload_file(self, source_file_path, destination_blob_name):
+    def get_files(self, file_names):
+        """
+        get files in binary format from the GCP bucket.
+
+        Args:
+            file_names: List of file names to get.
+
+        Returns:
+            List of file objects.
+        """
+        try:
+            file_objects = []
+            for file_name in file_names:
+                blob = self.bucket.blob(file_name)
+                file_object = blob.download_as_bytes()
+                file_objects.append(file_object)
+            return file_objects
+        except Exception as e:
+            logging.error("Error getting files from GCP: %s", e)
+            return []
+
+    def upload_file(
+        self, source_file, destination_blob_name, source_file_type: str = "local_file"
+    ):
         """
         Upload a file to the GCP bucket.
 
         Args:
-            source_file_path: Path to the local file.
-            destination_blob_name: The name of the destination blob (file) in the bucket.
-            returns: The public URL of the uploaded file.
+            source_file (str or file-like object): Path to the local file or file-like object.
+            destination_blob_name (str): The name of the destination blob (file) in the bucket.
+            source_file_type (str, optional): Type of the source file, either "local_file" for a file path or "file_object" for a file-like object. Defaults to "local_file".
+
+        Returns:
+            str: The public URL of the uploaded file, or None if an error occurred.
         """
         try:
             # Upload the file
             blob = self.bucket.blob(destination_blob_name)
-            blob.upload_from_filename(source_file_path)
+            if source_file_type == "local_file":
+                blob.upload_from_filename(source_file)
+            elif source_file_type == "file_object":
+                blob.upload_from_file(source_file)
 
             # Make the blob publicly accessible (optional)
             blob.make_public()
 
-            logging.info("File %s uploaded to %s.", source_file_path, destination_blob_name)
+            logging.info("File %s uploaded to %s.", source_file, destination_blob_name)
 
             # Return the public URL
             return blob.public_url
@@ -137,7 +169,7 @@ class GSOperations:
     def delete_file(self, blob_name):
         """
         Delete a file from the GCP bucket.
-        
+
         Args:
             blob_name: The name of the blob (file) in the bucket.
         """

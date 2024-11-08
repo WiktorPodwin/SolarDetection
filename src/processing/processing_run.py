@@ -1,9 +1,8 @@
-from processing.image_processing.image_process import ImageProcessing
-from api.src.operations.data_operations import DirectoryOperations
+from src.api.operations import DirectoryOperations
+from .image_processing.image_process import ImageProcessing
 
 def process_image(input_directory: str, output_directory: str) -> None:
-    dir_oper = DirectoryOperations()
-    files = dir_oper.list_directory(input_directory)
+    files = DirectoryOperations.list_directory(input_directory)
 
     for file in files:
         input_path = input_directory + "/" + file
