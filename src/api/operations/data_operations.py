@@ -20,7 +20,8 @@ class DirectoryOperations:
         """
         try:
             files = glob.glob(directory_path + "/*")
-            return files
+            file_names = [os.path.basename(file) for file in files]
+            return file_names
         except FileNotFoundError:
             logging.error("Directory %s not found", directory_path)
             return []
@@ -93,17 +94,6 @@ class GSOperations:
         except Exception as e:
             logging.error("Error uploading file to GCP: %s", e)
             return None
-
-    def update_file(self, source_file_path, destination_blob_name):
-        """
-        Upload a file to the GCP bucket.
-
-        Args:
-            source_file_path: Path to the local file.
-            destination_blob_name: The name of the destination blob (file) in the bucket.
-            returns: The public URL of the uploaded file.
-        """
-        return
 
     def download_file(self, blob_name, destination_file_path):
         """

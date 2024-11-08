@@ -1,10 +1,11 @@
 import os
-from api import plot, upload_to_gs
+from src.api.utils import plot, upload_to_gs
 from config import BaseConfig as Config
 
 
 if __name__ == "__main__":
     plot(
+        list(range(1, 100)),
         csv_file=Config.LOCATION_FIELD_CSV_DIR,
         website=Config.GEOPORTAL_URL,
         images_dir=Config.IMAGES_DIR,

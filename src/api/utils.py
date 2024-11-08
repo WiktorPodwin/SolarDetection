@@ -1,10 +1,11 @@
 import logging
+from typing import List
 import pandas as pd
 import selenium.common
 from .operations import DirectoryOperations, MapOperations, GSOperations
 
-
 def plot(
+    field_ids: List[str | int],
     csv_file: str = "",
     website: str = "",
     images_dir: str = "",
@@ -20,9 +21,9 @@ def plot(
     map_oper = MapOperations(website=website, image_path=images_dir)
     map_oper.prepare_map()
 
-    for i in range(0, 100):
+    for field_id in field_ids:
         try:
-            map_oper.handle_plot(f"{plot_id}/{i}")
+            map_oper.handle_plot(f"{plot_id}/{field_id}")
         except selenium.common.exceptions.UnexpectedAlertPresentException:
             print("Alert present")
 

@@ -29,6 +29,7 @@ class MapOperations:
             browser_oper = BrowserOperations(self.driver)
             browser_oper.find_by_class_name(class_name="ui-dialog-buttonset")
             browser_oper.find_by_id(element_id="check_widoczna_8")
+            browser_oper.find_by_id("button_rozwin_27")
         except MapException as e:
             logging.error("Error in map preparing: %s", e)
 
@@ -51,12 +52,22 @@ class MapOperations:
             browse_oper.switch_to_default_iframe()
             # Unmark checkbox
             browse_oper.find_by_id("check_widoczna_25", False)
-            # Unmark checkbox
-            browse_oper.find_by_id("check_widoczna_27", False)
+            # Unmark checkboxes
+            browse_oper.find_by_id("check_widoczna_29", False)
+            browse_oper.find_by_id("check_widoczna_30", False)
+            # Search button
+            browse_oper.find_by_id("szukaj_dzialki_north")
+            # Search iframe
+            browse_oper.switch_iframe("frame_szukaj_dzgb")
+            # Clean mark
+            browse_oper.find_by_id("wyczysc_marker")
+            # Default iframe
+            browse_oper.switch_to_default_iframe()
+            # Close search window
+            browse_oper.find_element_by_xpath("/html/body/div[35]/div[1]/a/span")            
 
             dir_oper = DirectoryOperations()
             dir_oper.create_directory(self.image_path)
-
 
             browse_oper.take_screenshot("map_canvas", self.image_path, plot_id.replace("/", "_"))
         except MapException as e:
@@ -70,34 +81,3 @@ class MapOperations:
             self.browser_operation.close_service()
         except MapException as e:
             logging.error("Error in closing the service: %s", e)
-
-class GoogleMapsImageFetcher:
-    """
-    A class for fetching satellite images from Google Maps.
-    """
-
-    def __init__(self, api_key):
-        """
-        Initializes the class with the Google Maps API key.
-
-        Args:
-            api_key (str): The Google Maps API key.
-        """
-        self._api_key = api_key
-
-    def fetch_image(self, location: str, zoom=20, size="640x640"):
-        """
-        Fetches a satellite image from Google Maps for a given location.
-
-        Args:
-            location (str): The location to fetch the image for (e.g., "New York City").
-            zoom (int, optional): The zoom level of the image. Defaults to 15.
-            size (str, optional): The size of the image in pixels (e.g., "640x640"). Defaults to "640x640".
-
-        Returns:
-            bytes: The image data.
-        """
-        url = f"https://maps.googleapis.com/maps/api/staticmap?center={location}&zoom={zoom}&size={size}&maptype=satellite&key={self._api_key}"
-        response = requests.get(url, timeout=10)
-        logging.debug("Response status code: %s", response.status_code)
-        return response.content
