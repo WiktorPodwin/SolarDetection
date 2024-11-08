@@ -4,6 +4,7 @@ from attrs import define
 
 logging.basicConfig(level=logging.INFO)
 
+
 @define
 class BaseConfig:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -17,3 +18,5 @@ class BaseConfig:
     BUCKET_NAME = os.getenv("GS_BUCKET_NAME", "solar-panels")
     SA_CREDENTIALS_PATH = os.path.join(BASE_DIR, "credentials.json")
     GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
+
+    USE_GS = os.getenv("USE_GS", "False") == "True"
