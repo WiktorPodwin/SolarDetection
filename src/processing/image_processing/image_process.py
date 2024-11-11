@@ -10,6 +10,7 @@ image_processing.save_image(output_path, cropped_image)
 
 """
 
+import logging
 from typing import Tuple
 import cv2
 import numpy as np
@@ -47,6 +48,7 @@ class ImageProcessing:
         image: np.ndarray,
         frame_color: Tuple[int, int, int] = (80, 150, 200),
         tolerance: int = 60,
+        clear_pixels: bool = False,
     ) -> np.ndarray:
         """
         Removes all elements outside the frame, including noise reduction for isolated pixels.
@@ -97,8 +99,11 @@ class ImageProcessing:
                 difference = np.abs(x_mid - x_half) + np.abs(y_mid - y_half)
                 measure_differences[i] = difference
                 measures[i] = approx
-
-        closest_point = min(measure_differences, key=measure_differences.get)
+        try:
+            closest_point = min(measure_differences, key=measure_differences.get)
+        except ValueError:
+            logging.error("No frame detected in the image.")
+            return image
         final_approx = tuple([measures[closest_point]])
         cv2.drawContours(
             frame_mask, final_approx, -1, (255, 255, 255), thickness=cv2.FILLED
@@ -111,5 +116,26 @@ class ImageProcessing:
         image_with_alpha = cv2.merge(
             [image[:, :, 0], image[:, :, 1], image[:, :, 2], alpha_channel]
         )
+        if clear_pixels:
+            # Crop the image to remove transparent pixels
+            image_with_alpha[image_with_alpha[..., 3] == 0] = [0, 0, 0, 0]
 
         return image_with_alpha
+
+    def crop_image(
+        self, image: np.ndarray, x: int, y: int, w: int, h: int
+    ) -> np.ndarray:
+        """
+        Crops an image to the specified dimensions
+
+        Args:
+            image (np.ndarray): Image matrix
+            x (int): x-coordinate of the top-left corner
+            y (int): y-coordinate of the top-left corner
+            w (int): Width of the cropped image
+            h (int): Height of the cropped image
+
+        Returns:
+            np.ndarray: Cropped image matrix
+        """
+        return image[y : y + h, x : x + w]

@@ -8,16 +8,17 @@ from config import BaseConfig as Config
 def run():
     cut_out_plots_dir = f"{Config.DATA_DIR}/cut_out_plots"
     # process images
-    process_image(Config.IMAGES_DIR, cut_out_plots_dir)
+    images = process_image(Config.IMAGES_DIR, cut_out_plots_dir)
     # detect image depth
     depth_processing = DepthProcessing()
     depth_processing.run(
         image_paths=[
-            f"{Config.DATA_DIR}/{file}" for file in os.listdir(cut_out_plots_dir)
+            image.location for image in images
         ],
-        save=True,
-        display=True,
+        save=False,
+        display=False,
     )
+
 
     # predict solar panel locations
 

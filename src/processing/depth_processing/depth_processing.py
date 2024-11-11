@@ -9,6 +9,12 @@ from tqdm import tqdm
 
 from config.config import BaseConfig
 from src import depth_pro
+from src.depth_pro.eval.boundary_metrics import (
+    SI_boundary_Recall,
+    get_thresholds_and_weights,
+    boundary_f1,
+    SI_boundary_F1,
+)
 from src.api.utils import get_torch_device
 from src.api.operations import DirectoryOperations, GSOperations
 
@@ -97,7 +103,7 @@ class DepthProcessing:
             # Load image and focal length from exif info (if found.).
             try:
                 logging.info("Loading image %s ...", image_path)
-                image, _, f_px = depth_pro.load_rgb(image_path)
+                image, _, f_px = depth_pro.load_rgb(image_path, remove_alpha=False)
             except Exception as e:
                 logging.error(str(e))
                 continue
@@ -120,11 +126,21 @@ class DepthProcessing:
             inverse_depth_normalized = (inverse_depth - min_invdepth_vizu) / (
                 max_invdepth_vizu - min_invdepth_vizu
             )
+            print("inverse_depth_normalized", inverse_depth_normalized)
+            print("inverse_depth_normalized[..., :3] * 255", inverse_depth_normalized[..., :3] * 255)
+            # print(inverse_depth_normalized.shape)
+            print("max_invdepth_vizu", max_invdepth_vizu)
+            print("min_invdepth_vizu", min_invdepth_vizu)
+            print("inverse_depth", inverse_depth)
+            print("depth", depth)
+            mean_depth = np.mean(depth)
+            mean_depth_matrix = np.full_like(depth, mean_depth)
+            print("boundary metric", self.calculate_boundary_metrics(depth, mean_depth_matrix))
 
             # Save Depth as npz file.
             if save:
                 image_directory = f"{BaseConfig.DATA_DIR}/depth"
-                output_file = f"{image_directory}/{image_path.split("/")[-1]}"
+                output_file = f"{image_directory}/{image_path.split("/")[-1].removesuffix(".png")}"
 
                 logging.info("Saving depth map to: %s", output_file)
                 DirectoryOperations.create_directory(image_directory)
@@ -153,3 +169,18 @@ class DepthProcessing:
         logging.info("Done predicting depth!")
         if display:
             plt.show(block=True)
+
+        return None
+
+    def calculate_boundary_metrics(self, depth: np.ndarray, target_depth: np.ndarray):
+        """Calculates the boundary metrics for the given depth map and ground truth."""
+        thresholds, weights = get_thresholds_and_weights(0.1, 250, 100)
+        boundary_metrics = SI_boundary_F1(depth, target_depth)
+        return boundary_metrics
+
+    def calculate_boundary_gt(self, depth: np.ndarray, gt: np.ndarray, t: float = 1.25):
+        """Calculates the boundary metrics for the given depth map and ground truth."""
+        thresholds, weights = get_thresholds_and_weights(0.1, 250, 100)
+        boundary_metrics = boundary_f1(depth, gt, t)
+        boundary_recall = SI_boundary_Recall(depth, gt)
+        return boundary_metrics
