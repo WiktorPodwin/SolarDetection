@@ -125,14 +125,16 @@ class DepthProcessing:
             min_invdepth_vizu = max(1 / 250, inverse_depth.min())
             inverse_depth_normalized = (inverse_depth - min_invdepth_vizu) / (
                 max_invdepth_vizu - min_invdepth_vizu
-            )
+            ) # over 0.39 should be a house
             print("inverse_depth_normalized", inverse_depth_normalized)
-            print("inverse_depth_normalized[..., :3] * 255", inverse_depth_normalized[..., :3] * 255)
+            print("inverse_depth_normalized[0]", inverse_depth_normalized[0])
+            print("inverse_depth_normalized[0][0]", inverse_depth_normalized[0][0])
+            print("inverse_depth_normalized[..., :3][0] * 255", inverse_depth_normalized[..., :3][0] * 255)
             # print(inverse_depth_normalized.shape)
-            print("max_invdepth_vizu", max_invdepth_vizu)
-            print("min_invdepth_vizu", min_invdepth_vizu)
-            print("inverse_depth", inverse_depth)
-            print("depth", depth)
+            # print("max_invdepth_vizu", max_invdepth_vizu)
+            # print("min_invdepth_vizu", min_invdepth_vizu)
+            # print("inverse_depth", inverse_depth)
+            # print("depth", depth)
             mean_depth = np.mean(depth)
             mean_depth_matrix = np.full_like(depth, mean_depth)
             print("boundary metric", self.calculate_boundary_metrics(depth, mean_depth_matrix))
@@ -145,7 +147,9 @@ class DepthProcessing:
                 logging.info("Saving depth map to: %s", output_file)
                 DirectoryOperations.create_directory(image_directory)
                 np.savez_compressed(output_file, depth=depth)
-
+                print("inverse_depth_normalized", inverse_depth_normalized)
+                inverse_depth_normalized[inverse_depth_normalized < 0.42] = 0
+                print("inverse_depth_normalized", inverse_depth_normalized)
                 # Save as color-mapped "turbo" jpg image.
                 cmap = plt.get_cmap("turbo")
                 color_depth = (cmap(inverse_depth_normalized)[..., :3] * 255).astype(
