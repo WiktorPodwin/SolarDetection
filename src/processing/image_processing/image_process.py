@@ -1,17 +1,17 @@
 """
 # Example usage:
 image_path = "data/images/281411_2.0001.295_5.png"
-output_path = "data/result_image.png"
+output_path = "data/cut_out_plots/281411_2.0001.295_5.png"
 
 image_processing = ImageProcessing()
 image = image_processing.load_image(image_path)
-cropped_image = image_processing.remove_outside_frame(image)
-image_processing.save_image(output_path, cropped_image)
-
+masked_image = image_processing.remove_outside_frame(image)
+cropped_plot = image_processing.crop_rectangle_around_plot(masked_image)
+image_processing.save_image(output_path, cropped_plot)
 """
 
 import logging
-from typing import Tuple
+from typing import Tuple, Optional
 import cv2
 import numpy as np
 
@@ -139,3 +139,63 @@ class ImageProcessing:
             np.ndarray: Cropped image matrix
         """
         return image[y : y + h, x : x + w]
+
+    def crop_plot(self, image: np.ndarray) -> np.ndarray:
+        """
+        Cuts out plot from image with mask
+        
+        Args:
+            image (np.ndarray): Image matrix
+
+        Returns:
+            np.ndarray: Cropped plot matrix
+        """
+        if image.shape[2] != 4:
+            logging.error("ValueError: Input image must have exacly 4 channels.")
+            return image
+        
+        rgb_image = image[:, :, :3]
+        mask = image[:, :, 3]
+        
+        black_background = np.zeros_like(rgb_image)
+
+        cropped_image = np.where(mask[..., None] != 0, rgb_image, black_background)
+
+        return cropped_image
+    
+    def crop_rectangle_around_plot(self, 
+                                   image: np.ndarray, 
+                                   return_coordinates: bool = False
+                                   ) -> Tuple[np.ndarray, Optional[Tuple[int,...]]]:
+        """
+        Cuts out rescatgle around plot from image with mask
+        
+        Args:
+            image (np.ndarray): Image matrix
+
+        Returns:
+            np.ndarray: Cropped rectangle around plot matrix
+            Tuple[int,...]: Size of rectangle (x_min, x_max, y_min, y_max)
+        """
+        try:
+            mask = image[:, :, 3]
+            image_no_mask =image[:, :, :3]
+        except IndexError:
+            logging.error("Image doesn't have marked any plot")
+            return image
+        y_indicies, x_indicies = np.where(mask != 0)
+
+        if y_indicies.size == 0 or x_indicies.size == 0:
+            logging.error("Plot is not detected, impossible to create a rectangle around")
+            return image
+        
+        x_min, x_max = x_indicies.min(), x_indicies.max()
+        y_min, y_max = y_indicies.min(), y_indicies.max()
+
+        cropped_rectangle = image_no_mask[y_min: y_max + 1, x_min: x_max + 1]
+
+        if return_coordinates:
+            return cropped_rectangle, (x_min, x_max, y_min, y_max)
+        else: 
+            return cropped_rectangle
+        

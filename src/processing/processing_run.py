@@ -13,8 +13,9 @@ def process_image(input_directory: str, output_directory: str) -> List[Image]:
         print(f"Processing image: {input_path}")
         image_processing = ImageProcessing()
         # image = image_processing.load_image(input_path)
-        # cropped_image = image_processing.remove_outside_frame(image, clear_pixels=True)
-        # image_processing.save_image(output_path, cropped_image)
+        # masked_image = image_processing.remove_outside_frame(image)
+        # cropped_plot = image_processing.crop_rectangle_around_plot(masked_image)
+        # image_processing.save_image(output_path, cropped_plot)
         ret.append(Image(name=file, location=input_path))
 
     return ret

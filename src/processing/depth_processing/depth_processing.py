@@ -142,7 +142,7 @@ class DepthProcessing:
             # Save Depth as npz file.
             if save:
                 image_directory = f"{BaseConfig.DATA_DIR}/depth"
-                output_file = f"{image_directory}/{image_path.split("/")[-1].removesuffix(".png")}"
+                output_file = f"{image_directory}/{image_path.split('/')[-1].removesuffix('.png')}"
 
                 logging.info("Saving depth map to: %s", output_file)
                 DirectoryOperations.create_directory(image_directory)
