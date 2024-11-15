@@ -1,15 +1,3 @@
-"""
-# Example usage:
-image_path = "data/images/281411_2.0001.295_5.png"
-output_path = "data/cut_out_plots/281411_2.0001.295_5.png"
-
-image_processing = ImageProcessing()
-image = image_processing.load_image(image_path)
-masked_image = image_processing.remove_outside_frame(image)
-cropped_plot = image_processing.crop_rectangle_around_plot(masked_image)
-image_processing.save_image(output_path, cropped_plot)
-"""
-
 import logging
 from typing import Tuple, Optional
 import cv2
@@ -43,21 +31,22 @@ class ImageProcessing:
         """
         cv2.imwrite(save_path, image)
 
-    def remove_outside_frame(
+    def generate_mask(
         self,
         image: np.ndarray,
         frame_color: Tuple[int, int, int] = (80, 150, 200),
-        tolerance: int = 60,
-        clear_pixels: bool = False,
-    ) -> np.ndarray:
+        tolerance: int = 60
+        ) -> np.ndarray:
         """
-        Removes all elements outside the frame, including noise reduction for isolated pixels.
+        Generates a mask around the searched plot
 
         Args:
             image (np.ndarray): Image matrix
             frame_color (tuple): 3 element tuple representing the RGB color of the frame.
-            output_path (str): Path where the output image will be saved.
             tolerance (int): Tolerance for color matching in frame detection.
+
+        Returns:
+            np.ndarray: Mask matrix
         """
         image_shape = image.shape
         x_half = int(image_shape[1] / 2)
@@ -109,10 +98,24 @@ class ImageProcessing:
             frame_mask, final_approx, -1, (255, 255, 255), thickness=cv2.FILLED
         )
 
-        gray_mask = cv2.cvtColor(frame_mask, cv2.COLOR_BGR2GRAY)
+        return frame_mask
+    
+    def apply_mask(self, image: np.ndarray, mask: np.ndarray, clear_pixels: bool = False) -> np.ndarray:
+        """
+        Removes all elements outside the frame, including noise reduction for isolated pixels.
+
+        Args:
+            image (np.ndarray): Image matrix
+            mask (np.ndarray): Mask matrix
+        
+        Returns:
+            np.ndarray: Cut out plot
+        """
+        gray_mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
 
         # Create an alpha channel based on the final cleaned mask
         alpha_channel = np.where(gray_mask > 0, 255, 0).astype(np.uint8)
+
         image_with_alpha = cv2.merge(
             [image[:, :, 0], image[:, :, 1], image[:, :, 2], alpha_channel]
         )
@@ -121,25 +124,7 @@ class ImageProcessing:
             image_with_alpha[image_with_alpha[..., 3] == 0] = [0, 0, 0, 0]
 
         return image_with_alpha
-
-    def crop_image(
-        self, image: np.ndarray, x: int, y: int, w: int, h: int
-    ) -> np.ndarray:
-        """
-        Crops an image to the specified dimensions
-
-        Args:
-            image (np.ndarray): Image matrix
-            x (int): x-coordinate of the top-left corner
-            y (int): y-coordinate of the top-left corner
-            w (int): Width of the cropped image
-            h (int): Height of the cropped image
-
-        Returns:
-            np.ndarray: Cropped image matrix
-        """
-        return image[y : y + h, x : x + w]
-
+    
     def crop_plot(self, image: np.ndarray) -> np.ndarray:
         """
         Cuts out plot from image with mask
@@ -166,7 +151,8 @@ class ImageProcessing:
     def crop_rectangle_around_plot(self, 
                                    image: np.ndarray, 
                                    return_coordinates: bool = False
-                                   ) -> Tuple[np.ndarray, Optional[Tuple[int,...]]]:
+                                   ) -> Tuple[np.ndarray, 
+                                              Optional[Tuple[int,...]]]:
         """
         Cuts out rescatgle around plot from image with mask
         
@@ -182,7 +168,10 @@ class ImageProcessing:
             image_no_mask =image[:, :, :3]
         except IndexError:
             logging.error("Image doesn't have marked any plot")
-            return image
+            if return_coordinates:
+                return image, None
+            else: 
+                return image
         y_indicies, x_indicies = np.where(mask != 0)
 
         if y_indicies.size == 0 or x_indicies.size == 0:
@@ -195,7 +184,34 @@ class ImageProcessing:
         cropped_rectangle = image_no_mask[y_min: y_max + 1, x_min: x_max + 1]
 
         if return_coordinates:
-            return cropped_rectangle, (x_min, x_max, y_min, y_max)
+            coordinates = (x_min, x_max, y_min, y_max)
+            return cropped_rectangle, coordinates
         else: 
             return cropped_rectangle
+
+    def restore_original_size_from_rectangle(self, 
+                                             cropped_rectangle: np.ndarray,
+                                             rectangle_cords: Tuple[int, int, int, int],
+                                             original_size: Tuple[int, int, int] = (780, 1450, 3)
+                                             ) -> np.ndarray:
+      """
+      Restores a cropped rectangle back to the original image size.
+
+      Args:
+          cropped_rectangle (np.ndarray): The cropped rectangle image.
+          original_size (Tuple[int, int, int]): The size of the original image (height, width, channels).
+          rectangle_coords (Tuple[int, int, int, int]): Coordinates of the rectangle (x_min, x_max, y_min, y_max).
+
+      Returns:
+          np.ndarray: Restored image with the rectangle placed back.
+      """
+      try:
+          x_min, x_max, y_min, y_max = rectangle_cords
+      except TypeError:
+          x_min, x_max, y_min, y_max = 0, 0, 0, 0
+      restored_image = np.ones(original_size)
+      restored_image[y_min: y_max + 1, x_min: x_max + 1] = cropped_rectangle
+      return restored_image
+
+
         

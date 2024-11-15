@@ -60,7 +60,6 @@ class DirectoryOperations:
         except OSError as e:
             logging.error("Error while deleting %s: %s", directory_path, e)
 
-
 class GSOperations:
     """
     Class to handle Google Cloud Storage operations

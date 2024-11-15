@@ -15,7 +15,13 @@ def run():
         image_paths=[
             image.location for image in images
         ],
-        save=False,
+        rectangle_shapes=[
+          image.rectangle_shape for image in images
+        ],
+        masks = [
+          image.mask for image in images
+        ],
+        save=True,
         display=False,
     )
 

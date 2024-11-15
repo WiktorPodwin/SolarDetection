@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-
+from typing import Tuple, Optional
 import numpy as np
 
 
@@ -14,3 +14,5 @@ class Image:
     focal_length: float = .0
     segmentation: np.ndarray = field(default_factory=lambda: np.array([]))
     classification: str = ""
+    rectangle_shape: Optional[Tuple[int, int, int, int]] = None
+    mask: np.ndarray = field(default_factory=lambda: np.array([]))

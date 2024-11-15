@@ -1,5 +1,6 @@
 import logging
-from typing import List
+from typing import List, Tuple
+import cv2
 
 import numpy as np
 from PIL import Image
@@ -17,6 +18,7 @@ from src.depth_pro.eval.boundary_metrics import (
 )
 from src.api.utils import get_torch_device
 from src.api.operations import DirectoryOperations, GSOperations
+from src.processing.image_processing.image_process import ImageProcessing
 
 
 class DepthProcessing:
@@ -27,12 +29,18 @@ class DepthProcessing:
         )
         self.model.eval()
 
-    def run(self, image_paths: List[str], save: bool = False, display: bool = False):
+    def run(self, 
+            image_paths: List[str], 
+            rectangle_shapes: List[Tuple[int, int, int, int]] = None, 
+            masks: List[np.ndarray] = None,
+            save: bool = False, 
+            display: bool = False
+            ) -> None:
         """Runs the depth detection process."""
         if BaseConfig.USE_GS:
             self.__run_gs(image_paths, save, display)
         else:
-            self.__run_local(image_paths, save, display)
+            self.__run_local(image_paths, rectangle_shapes, masks, save, display)
 
     def __run_gs(self, image_ids: List[str], save: bool = False, display: bool = False):
         """Runs the depth detection process."""
@@ -87,7 +95,12 @@ class DepthProcessing:
                 )
 
     def __run_local(
-        self, image_paths: List[str], save: bool = False, display: bool = False
+        self, 
+        image_paths: List[str], 
+        rectangle_shapes: List[Tuple[int, int, int, int]] = None, 
+        masks: List[np.ndarray] = None,
+        save: bool = False, 
+        display: bool = False
     ):
         """Runs the depth detection process."""
 
@@ -99,7 +112,7 @@ class DepthProcessing:
             ax_rgb = fig.add_subplot(121)
             ax_disp = fig.add_subplot(122)
 
-        for image_path in tqdm(image_paths):
+        for i, image_path in enumerate(tqdm(image_paths)):
             # Load image and focal length from exif info (if found.).
             try:
                 logging.info("Loading image %s ...", image_path)
@@ -126,18 +139,9 @@ class DepthProcessing:
             inverse_depth_normalized = (inverse_depth - min_invdepth_vizu) / (
                 max_invdepth_vizu - min_invdepth_vizu
             ) # over 0.39 should be a house
-            print("inverse_depth_normalized", inverse_depth_normalized)
-            print("inverse_depth_normalized[0]", inverse_depth_normalized[0])
-            print("inverse_depth_normalized[0][0]", inverse_depth_normalized[0][0])
-            print("inverse_depth_normalized[..., :3][0] * 255", inverse_depth_normalized[..., :3][0] * 255)
-            # print(inverse_depth_normalized.shape)
-            # print("max_invdepth_vizu", max_invdepth_vizu)
-            # print("min_invdepth_vizu", min_invdepth_vizu)
-            # print("inverse_depth", inverse_depth)
-            # print("depth", depth)
+      
             mean_depth = np.mean(depth)
             mean_depth_matrix = np.full_like(depth, mean_depth)
-            print("boundary metric", self.calculate_boundary_metrics(depth, mean_depth_matrix))
 
             # Save Depth as npz file.
             if save:
@@ -147,19 +151,27 @@ class DepthProcessing:
                 logging.info("Saving depth map to: %s", output_file)
                 DirectoryOperations.create_directory(image_directory)
                 np.savez_compressed(output_file, depth=depth)
-                print("inverse_depth_normalized", inverse_depth_normalized)
                 inverse_depth_normalized[inverse_depth_normalized < 0.42] = 0
-                print("inverse_depth_normalized", inverse_depth_normalized)
+
                 # Save as color-mapped "turbo" jpg image.
                 cmap = plt.get_cmap("turbo")
                 color_depth = (cmap(inverse_depth_normalized)[..., :3] * 255).astype(
                     np.uint8
                 )
+                color_depth_bgr = cv2.cvtColor(color_depth, cv2.COLOR_RGB2BGR)
+
+                image_processing = ImageProcessing()
+                original_size_inverse_depth_normalized = image_processing.restore_original_size_from_rectangle(color_depth_bgr,
+                                                                                                               rectangle_shapes[i])
+                original_size_inverse_depth_normalized = original_size_inverse_depth_normalized.astype('uint8')
+                masked_image = image_processing.apply_mask(original_size_inverse_depth_normalized, masks[i])
+                cut_out_plot = image_processing.crop_plot(masked_image)
+
                 color_map_output_file = output_file + ".jpg"
                 logging.info(
                     "Saving color-mapped depth to: : %s", color_map_output_file
                 )
-                Image.fromarray(color_depth).save(
+                Image.fromarray(cut_out_plot).save(
                     color_map_output_file, format="JPEG", quality=90
                 )
 
