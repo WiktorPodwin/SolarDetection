@@ -105,14 +105,15 @@ class DepthProcessing:
         """Runs the depth detection process."""
 
         # Load model.
-
-        if display:
-            plt.ion()
-            fig = plt.figure()
-            ax_rgb = fig.add_subplot(121)
-            ax_disp = fig.add_subplot(122)
+        number_of_images = len(image_paths)
 
         for i, image_path in enumerate(tqdm(image_paths)):
+            if display and i == number_of_images - 1:
+                plt.ion()
+                fig = plt.figure()
+                ax_rgb = fig.add_subplot(121)
+                ax_disp = fig.add_subplot(122)
+
             # Load image and focal length from exif info (if found.).
             try:
                 logging.info("Loading image %s ...", image_path)
@@ -126,6 +127,7 @@ class DepthProcessing:
 
             # Extract the depth and focal length.
             depth = prediction["depth"].detach().cpu().numpy().squeeze()
+            print(depth)
             if f_px is not None:
                 logging.debug("Focal length (from exif): %.2f", f_px)
             elif prediction["focallength_px"] is not None:
@@ -138,10 +140,24 @@ class DepthProcessing:
             min_invdepth_vizu = max(1 / 250, inverse_depth.min())
             inverse_depth_normalized = (inverse_depth - min_invdepth_vizu) / (
                 max_invdepth_vizu - min_invdepth_vizu
-            ) # over 0.39 should be a house
+            )
       
             mean_depth = np.mean(depth)
             mean_depth_matrix = np.full_like(depth, mean_depth)
+            # threshold displayed value
+            inverse_depth_normalized[inverse_depth_normalized < 0.42] = 0
+
+            cmap = plt.get_cmap("turbo")
+            color_depth = (cmap(inverse_depth_normalized)[..., :3] * 255).astype(
+                np.uint8
+            )
+            color_depth_bgr = cv2.cvtColor(color_depth, cv2.COLOR_RGB2BGR)
+
+            image_processing = ImageProcessing()
+            original_size_inverse_depth_normalized = image_processing.restore_original_size_from_rectangle(color_depth_bgr,
+                                                                                                            rectangle_shapes[i])
+            original_size_inverse_depth_normalized = original_size_inverse_depth_normalized.astype('uint8')
+            masked_image = image_processing.apply_mask(original_size_inverse_depth_normalized, masks[i])
 
             # Save Depth as npz file.
             if save:
@@ -151,22 +167,9 @@ class DepthProcessing:
                 logging.info("Saving depth map to: %s", output_file)
                 DirectoryOperations.create_directory(image_directory)
                 np.savez_compressed(output_file, depth=depth)
-                inverse_depth_normalized[inverse_depth_normalized < 0.42] = 0
 
-                # Save as color-mapped "turbo" jpg image.
-                cmap = plt.get_cmap("turbo")
-                color_depth = (cmap(inverse_depth_normalized)[..., :3] * 255).astype(
-                    np.uint8
-                )
-                color_depth_bgr = cv2.cvtColor(color_depth, cv2.COLOR_RGB2BGR)
-
-                image_processing = ImageProcessing()
-                original_size_inverse_depth_normalized = image_processing.restore_original_size_from_rectangle(color_depth_bgr,
-                                                                                                               rectangle_shapes[i])
-                original_size_inverse_depth_normalized = original_size_inverse_depth_normalized.astype('uint8')
-                masked_image = image_processing.apply_mask(original_size_inverse_depth_normalized, masks[i])
                 cut_out_plot = image_processing.crop_plot(masked_image)
-
+                
                 color_map_output_file = output_file + ".jpg"
                 logging.info(
                     "Saving color-mapped depth to: : %s", color_map_output_file
@@ -176,16 +179,19 @@ class DepthProcessing:
                 )
 
             # Display the image and estimated depth map.
-            if display:
-                ax_rgb.imshow(image)
-                ax_disp.imshow(inverse_depth_normalized, cmap="turbo")
+            if display and i == number_of_images - 1:
+                cropped_rectangle = image_processing.crop_rectangle_around_plot(masked_image, with_mask=True)
+                
+                original_image_original_size = image_processing.restore_original_size_from_rectangle(image, rectangle_shapes[i])
+                original_image_with_mask = image_processing.apply_mask(original_image_original_size, masks[i])
+                cut_out_original_plot = image_processing.crop_rectangle_around_plot(original_image_with_mask, with_mask=True)
+                ax_rgb.imshow(cut_out_original_plot)
+                ax_disp.imshow(cropped_rectangle)
                 fig.canvas.draw()
                 fig.canvas.flush_events()
+                plt.show(block=True)
 
         logging.info("Done predicting depth!")
-        if display:
-            plt.show(block=True)
-
         return None
 
     def calculate_boundary_metrics(self, depth: np.ndarray, target_depth: np.ndarray):

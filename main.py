@@ -21,16 +21,16 @@ def run():
         masks = [
           image.mask for image in images
         ],
-        save=True,
-        display=False,
+        save=False,
+        display=True,
     )
 
 
     # predict solar panel locations
 
 
-if __name__ == "__main__":
-    run()
+# if __name__ == "__main__":
+#     run()
     # plot(
     #     list(range(1, 100)),
     #     csv_file=Config.LOCATION_FIELD_CSV_DIR,

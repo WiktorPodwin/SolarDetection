@@ -18,7 +18,7 @@ class ImageProcessing:
         Returns:
             np.ndarray: Image matrix
         """
-        image = cv2.imread(image_path)
+        image = cv2.imread(image_path, cv2.COLOR_RGB2BGR)
         return image
 
     def save_image(self, save_path: str, image: np.ndarray) -> None:
@@ -53,14 +53,14 @@ class ImageProcessing:
         y_half = int(image_shape[0] / 2)
 
         # Convert the frame color from RGB to BGR (since OpenCV uses BGR)
-        frame_color_bgr = tuple(reversed(frame_color))  # convert RGB to BGR
+        # frame_color_bgr = tuple(reversed(frame_color))  # convert RGB to BGR
 
         # Define tolerance for color matching (to handle slight variations in color)
         lower_bound = np.array(
-            [max(c - tolerance, 0) for c in frame_color_bgr], dtype=np.uint8
+            [max(c - tolerance, 0) for c in frame_color], dtype=np.uint8
         )
         upper_bound = np.array(
-            [min(c + tolerance, 255) for c in frame_color_bgr], dtype=np.uint8
+            [min(c + tolerance, 255) for c in frame_color], dtype=np.uint8
         )
 
         # Create a mask where the frame color is present
@@ -115,6 +115,7 @@ class ImageProcessing:
 
         # Create an alpha channel based on the final cleaned mask
         alpha_channel = np.where(gray_mask > 0, 255, 0).astype(np.uint8)
+        image = image.astype(np.uint8)
 
         image_with_alpha = cv2.merge(
             [image[:, :, 0], image[:, :, 1], image[:, :, 2], alpha_channel]
@@ -150,7 +151,8 @@ class ImageProcessing:
     
     def crop_rectangle_around_plot(self, 
                                    image: np.ndarray, 
-                                   return_coordinates: bool = False
+                                   return_coordinates: bool = False,
+                                   with_mask: bool = False,
                                    ) -> Tuple[np.ndarray, 
                                               Optional[Tuple[int,...]]]:
         """
@@ -158,14 +160,19 @@ class ImageProcessing:
         
         Args:
             image (np.ndarray): Image matrix
+            return_coordinates (bool): If should return rectangle shape
+            with_mask (bool): If should return image with mask
 
         Returns:
             np.ndarray: Cropped rectangle around plot matrix
-            Tuple[int,...]: Size of rectangle (x_min, x_max, y_min, y_max)
+            Optional[Tuple[int,...]]: Size of rectangle (x_min, x_max, y_min, y_max)
         """
         try:
             mask = image[:, :, 3]
-            image_no_mask =image[:, :, :3]
+            if with_mask:
+                final_image = image.copy()
+            else:
+                final_image = image[:, :, :3]
         except IndexError:
             logging.error("Image doesn't have marked any plot")
             if return_coordinates:
@@ -181,7 +188,7 @@ class ImageProcessing:
         x_min, x_max = x_indicies.min(), x_indicies.max()
         y_min, y_max = y_indicies.min(), y_indicies.max()
 
-        cropped_rectangle = image_no_mask[y_min: y_max + 1, x_min: x_max + 1]
+        cropped_rectangle = final_image[y_min: y_max + 1, x_min: x_max + 1]
 
         if return_coordinates:
             coordinates = (x_min, x_max, y_min, y_max)
