@@ -31,7 +31,7 @@ class ImageProcessing:
         """
         cv2.imwrite(save_path, image)
 
-    def generate_mask(
+    def generate_mask_around_plot(
         self,
         image: np.ndarray,
         frame_color: Tuple[int, int, int] = (80, 150, 200),
@@ -53,14 +53,14 @@ class ImageProcessing:
         y_half = int(image_shape[0] / 2)
 
         # Convert the frame color from RGB to BGR (since OpenCV uses BGR)
-        # frame_color_bgr = tuple(reversed(frame_color))  # convert RGB to BGR
+        frame_color_bgr = tuple(reversed(frame_color))  # convert RGB to BGR
 
         # Define tolerance for color matching (to handle slight variations in color)
         lower_bound = np.array(
-            [max(c - tolerance, 0) for c in frame_color], dtype=np.uint8
+            [max(c - tolerance, 0) for c in frame_color_bgr], dtype=np.uint8
         )
         upper_bound = np.array(
-            [min(c + tolerance, 255) for c in frame_color], dtype=np.uint8
+            [min(c + tolerance, 255) for c in frame_color_bgr], dtype=np.uint8
         )
 
         # Create a mask where the frame color is present
@@ -97,9 +97,55 @@ class ImageProcessing:
         cv2.drawContours(
             frame_mask, final_approx, -1, (255, 255, 255), thickness=cv2.FILLED
         )
-
         return frame_mask
     
+    def generate_mask_around_building(self,
+                                      image: np.ndarray,
+                                      low_boundary: Tuple[int, int, int],
+                                      high_boundary: Tuple[int, int, int]
+                                      ) -> np.ndarray:
+        """
+        Generates a mask around the building 
+
+        Args:
+            image (np.ndarray): Image matrix
+            low_boundary (tuple): 3 element tuple representing the low boundary of RGB color.
+            high_boundary (tuple): 3 element tuple representing the top boundary of RGB color.
+
+        Returns:
+            np.ndarray: Mask matrix
+        """
+        low_boundary_bgr = tuple(reversed(low_boundary))
+        high_boundary_bgr = tuple(reversed(high_boundary))
+
+        mask = cv2.inRange(image, low_boundary_bgr, high_boundary_bgr)
+
+        frame_mask = np.zeros_like(image)
+        contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        coordinates = {}
+        areas = {}
+        for i, contour in enumerate(contours):
+
+            epsilon = 0.01 * cv2.arcLength(contour, True)
+            approx = cv2.approxPolyDP(contour, epsilon, True)
+
+            area = cv2.contourArea(approx)
+            _, _, w, h = cv2.boundingRect(approx)
+
+            if w > 30 and h > 30 and 4 <= approx.shape[0] <= 15 and area > 4200:
+                coordinates[i] = approx
+                areas[i] = area
+        try:
+            biggest_area = max(areas, key=areas.get)
+        except ValueError:
+            logging.info("No building detected on the plot")
+            return frame_mask
+        
+        final_approx = [coordinates[biggest_area]]
+        cv2.drawContours(frame_mask, final_approx, -1, (255, 255, 255), cv2.FILLED)
+        return frame_mask
+
+
     def apply_mask(self, image: np.ndarray, mask: np.ndarray, clear_pixels: bool = False) -> np.ndarray:
         """
         Removes all elements outside the frame, including noise reduction for isolated pixels.
