@@ -1,36 +1,38 @@
 import os
+from src.solar_detection.train_model import setup_training
 from src.processing.processing_run import process_image
 from src.processing.depth_processing.depth_processing import DepthProcessing
-from src.api.utils import plot, upload_to_gs
+from src.utils import plot, upload_to_gs
 from config import BaseConfig as Config
 
 
 def run():
-    cut_out_plots_dir = f"{Config.DATA_DIR}/cut_out_plots"
-    # process images
-    images = process_image(Config.IMAGES_DIR, cut_out_plots_dir)
-    # detect image depth
-    depth_processing = DepthProcessing()
-    depth_processing.run(
-        image_paths=[
-            image.location for image in images
-        ],
-        rectangle_shapes=[
-          image.rectangle_shape for image in images
-        ],
-        masks = [
-          image.mask for image in images
-        ],
-        save=False,
-        display=True,
-    )
+    setup_training()
+    # cut_out_plots_dir = f"{Config.DATA_DIR}/cut_out_plots"
+    # # process images
+    # images = process_image(Config.IMAGES_DIR, cut_out_plots_dir)
+    # # detect image depth
+    # depth_processing = DepthProcessing()
+    # depth_processing.run(
+    #     image_paths=[
+    #         image.location for image in images
+    #     ],
+    #     rectangle_shapes=[
+    #       image.rectangle_shape for image in images
+    #     ],
+    #     masks = [
+    #       image.mask for image in images
+    #     ],
+    #     save=False,
+    #     display=True,
+    # )
 
 
     # predict solar panel locations
 
 
-# if __name__ == "__main__":
-#     run()
+if __name__ == "__main__":
+    run()
     # plot(
     #     list(range(1, 100)),
     #     csv_file=Config.LOCATION_FIELD_CSV_DIR,
