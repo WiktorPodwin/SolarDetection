@@ -1,9 +1,10 @@
 import logging
-from typing import List
+from typing import Any, List
 import pandas as pd
 import selenium.common
 import torch
-from .operations import DirectoryOperations, MapOperations, GSOperations
+from src.api.operations import DirectoryOperations, MapOperations, GSOperations
+
 
 def plot(
     field_ids: List[str | int],
@@ -51,3 +52,7 @@ def get_torch_device() -> torch.device:
     elif torch.backends.mps.is_available():
         device = torch.device("mps")
     return device
+
+
+def load_csv_df(csv_file: str, header: int | List[Any] | None = None) -> pd.DataFrame:
+    return pd.read_csv(csv_file, skipinitialspace=True, header=header)
