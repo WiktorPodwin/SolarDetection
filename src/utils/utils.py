@@ -3,7 +3,7 @@ from typing import List
 import pandas as pd
 import selenium.common
 import torch
-from .operations import DirectoryOperations, MapOperations, GSOperations
+from src.api.operations import DirectoryOperations, MapOperations, GSOperations
 
 def plot(
     field_ids: List[str | int],

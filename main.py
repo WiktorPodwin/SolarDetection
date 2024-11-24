@@ -1,7 +1,7 @@
 import os
 from src.processing.processing_run import process_image
 from src.processing.depth_processing.depth_processing import DepthProcessing
-from src.api.utils import plot, upload_to_gs
+from src.utils import plot, upload_to_gs
 from config import BaseConfig as Config
 
 

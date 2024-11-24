@@ -16,7 +16,7 @@ from src.depth_pro.eval.boundary_metrics import (
     boundary_f1,
     SI_boundary_F1,
 )
-from src.api.utils import get_torch_device
+from src.utils import get_torch_device
 from src.api.operations import DirectoryOperations, GSOperations
 from src.processing.image_processing.image_process import ImageProcessing
 

@@ -4,7 +4,7 @@ from torch import optim
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
-from src.api.utils import get_torch_device
+from utils import get_torch_device
 
 from .classifier import SolarPanelClassifier
 
