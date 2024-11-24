@@ -21,7 +21,7 @@ def setup_training():
     # Define data transformations
     transform = transforms.Compose(
         [
-            transforms.Resize((150, 150)),
+            # transforms.Resize((150, 150)),
             transforms.RandomHorizontalFlip(),
             transforms.RandomRotation(20),
             transforms.ToTensor(),
@@ -33,10 +33,10 @@ def setup_training():
 
     # Load datasets
     train_dataset = datasets.ImageFolder(root=train_dir, transform=transform)
-    val_dataset = datasets.ImageFolder(root=test_dir, transform=transform)
+    test_dataset = datasets.ImageFolder(root=test_dir, transform=transform)
 
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
     # Initialize model, loss function, and optimizer
     device = get_torch_device()
@@ -46,7 +46,7 @@ def setup_training():
 
     # Train the model
     model = train_model(
-        model, device, train_loader, val_loader, criterion, optimizer, num_epochs=20
+        model, device, train_loader, test_loader, criterion, optimizer, num_epochs=20
     )
 
     # Save the trained model
@@ -57,7 +57,7 @@ def setup_training():
 
 
 def train_model(
-    model, device, train_loader, val_loader, criterion, optimizer, num_epochs=20
+    model, device, train_loader, test_loader, criterion, optimizer, num_epochs=20
 ) -> SolarPanelClassifier:
     for epoch in range(num_epochs):
         model.train()
@@ -78,7 +78,7 @@ def train_model(
         correct = 0
         total = 0
         with torch.no_grad():
-            for images, labels in val_loader:
+            for images, labels in test_loader:
                 images, labels = images.to(device), labels.to(device).unsqueeze(1)
                 outputs = model(images)
                 loss = criterion(outputs, labels)
@@ -91,6 +91,6 @@ def train_model(
 
         print(f"Epoch [{epoch+1}/{num_epochs}], "
               f"Train Loss: {train_loss/len(train_loader):.4f}, "
-              f"Validation Loss: {val_loss/len(val_loader):.4f}, "
-              f"Validation Accuracy: {correct/total:.4f}")
+              f"Testing Data Loss: {val_loss/len(test_loader):.4f}, "
+              f"Testing Data Accuracy: {correct/total:.4f}")
     return model
