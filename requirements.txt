@@ -12,10 +12,6 @@ numpy<2
 # Google Cloud
 google-cloud-storage>=2.18.2
 
-# FastAPI
-fastapi>=0.115.2
-uvicorn>=0.32.0
-
 # For development
 opencv-python==4.10.0.84
 
