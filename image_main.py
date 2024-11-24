@@ -9,7 +9,7 @@ import os
 if __name__ == "__main__":
     original_dir_path = config.IMAGES_DIR
     depth_dir_path = os.path.join(config.BASE_DIR, "data/depth/")
-    buildings_dir_path = os.path.join(config.BASE_DIR, "data/buildings/")
+    buildings_dir_path = os.path.join(config.BASE_DIR, "data/potential_buildings/")
 
     dir_oper = DirectoryOperations
     dir_oper.create_directory(buildings_dir_path)
@@ -23,13 +23,19 @@ if __name__ == "__main__":
 
             input_file_path = os.path.join(depth_dir_path, file_path)
             building_file_path = os.path.join(buildings_dir_path, file_path.with_suffix('.png').name)
-
+            
             image_processing = ImageProcessing()
             segmented_image = image_processing.load_image(input_file_path)
             original_image = image_processing.load_image(png_original_image_path)
             low_boundary = (0, 2, 110)
             high_boundary = (100, 255, 255)
-            mask = image_processing.generate_mask_around_building(segmented_image, low_boundary, high_boundary)
+            shapes = image_processing.generate_mask_around_potential_building(segmented_image, low_boundary, high_boundary)
 
-            extracted_buliding = image_processing.apply_mask(original_image, mask)
-            image_processing.save_image(building_file_path, extracted_buliding)
+            for i, shape in enumerate(shapes):
+                file_path_nosuffix = file_path.with_suffix('')
+                file_path_i = str(file_path_nosuffix) + f"_{i}.png"
+                building_file_path = os.path.join(buildings_dir_path, file_path_i)
+                building_mask = image_processing.apply_mask(original_image, shape)
+                extracted_rectangle = image_processing.crop_rectangle_around_plot(building_mask, with_mask=True)
+                extracted_buliding = image_processing.crop_plot(extracted_rectangle)
+                image_processing.save_image(building_file_path, extracted_buliding)

@@ -1,5 +1,5 @@
 import logging
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List, Any
 import cv2
 import numpy as np
 
@@ -99,11 +99,11 @@ class ImageProcessing:
         )
         return frame_mask
     
-    def generate_mask_around_building(self,
+    def generate_mask_around_potential_building(self,
                                       image: np.ndarray,
                                       low_boundary: Tuple[int, int, int],
                                       high_boundary: Tuple[int, int, int]
-                                      ) -> np.ndarray:
+                                      ) -> List[np.ndarray | Any]:
         """
         Generates a mask around the building 
 
@@ -113,7 +113,7 @@ class ImageProcessing:
             high_boundary (tuple): 3 element tuple representing the top boundary of RGB color.
 
         Returns:
-            np.ndarray: Mask matrix
+            List[np.ndarray | Any]: List of images with masks around potential buildings
         """
         low_boundary_bgr = tuple(reversed(low_boundary))
         high_boundary_bgr = tuple(reversed(high_boundary))
@@ -135,15 +135,15 @@ class ImageProcessing:
             if w > 30 and h > 30 and 4 <= approx.shape[0] <= 15 and area > 4200:
                 coordinates[i] = approx
                 areas[i] = area
-        try:
-            biggest_area = max(areas, key=areas.get)
-        except ValueError:
-            logging.info("No building detected on the plot")
-            return frame_mask
-        
-        final_approx = [coordinates[biggest_area]]
-        cv2.drawContours(frame_mask, final_approx, -1, (255, 255, 255), cv2.FILLED)
-        return frame_mask
+
+        shapes = []
+        for _, value in coordinates.items():
+            frame_mask = np.zeros_like(image)
+            cv2.drawContours(frame_mask, [value], -1, (255, 255, 255), cv2.FILLED)
+            # x, y, w, h = cv2.boundingRect(value)
+            # cv2.rectangle(frame_mask, (x, y), (x +w, y +h), (255, 255, 255), -1)
+            shapes.append(frame_mask)
+        return shapes
 
 
     def apply_mask(self, image: np.ndarray, mask: np.ndarray, clear_pixels: bool = False) -> np.ndarray:
