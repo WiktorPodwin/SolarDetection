@@ -8,7 +8,7 @@ class Mask:
     mask: np.ndarray = field(default_factory=lambda: np.array([]))
     roof_mask: np.ndarray = field(default_factory=lambda: np.array([]))
     ground_mask: np.ndarray = field(default_factory=lambda: np.array([]))
-    rectangle_shape: Optional[Tuple[int, int, int, int]] = None
+    rectangle_shape: Optional[Tuple[int, int, int, int]] = field(default_factory=Tuple)
 
 @dataclass
 class Depth:
@@ -37,14 +37,14 @@ class Image(Mask, Depth):
 
     @property
     def describe(self):
-        print(f"Image {self.name}")
-        print(f"Location: {self.location}")
-        print(f"Size: {self.size}")
-        print(f"Metadata: {self.metadata}")
-        print(f"RGB shape: {self.rgb.shape}")
-        print(f"Depth shape: {self.depth.shape}")
-        print(f"Focal length: {self.focal_length}")
-        print(f"Segmentation shape: {self.segmentation.shape}")
-        print(f"Classification: {self.classification}")
-        print(f"Rectangle shape: {self.rectangle_shape}")
+        print(f"Image {self.name = }")
+        print(f"Location: {self.location = }")
+        print(f"Size: {self.size = }")
+        print(f"Metadata: {self.metadata = }")
+        print(f"RGB shape: {self.rgb.shape = }")
+        print(f"Depth shape: {self.depth.shape = }")
+        print(f"Focal length: {self.focal_length = }")
+        print(f"Segmentation shape: {self.segmentation.shape = }")
+        print(f"Classification: {self.classification = }")
+        print(f"Rectangle shape: {self.rectangle_shape = }")
         return self
