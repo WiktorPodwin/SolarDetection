@@ -1,4 +1,9 @@
+import os
+import torch
 from torch import nn
+from torch.utils.data import Dataset
+from PIL import Image
+
 
 class SolarPanelClassifier(nn.Module):
     def __init__(self):
@@ -27,3 +32,23 @@ class SolarPanelClassifier(nn.Module):
         x = self.conv_layers(x)
         x = self.fc_layers(x)
         return x
+
+
+class SolarPanelDataset(Dataset):
+    def __init__(self, dataframe, data_dir, transform=None):
+        self.dataframe = dataframe
+        self.transform = transform
+        self.data_dir = data_dir
+
+    def __len__(self):
+        return len(self.dataframe)
+
+    def __getitem__(self, idx):
+        img_path = os.path.join(self.data_dir, self.dataframe.iloc[idx, 0])
+        label = self.dataframe.iloc[idx, 1]
+        image = Image.open(img_path).convert("RGB")  # Convert to RGB
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image, torch.tensor(label, dtype=torch.float32)
