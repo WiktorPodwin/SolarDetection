@@ -129,7 +129,6 @@ class DepthProcessing:
 
             # Extract the depth and focal length.
             depth = prediction["depth"].detach().cpu().numpy().squeeze()
-            print(depth)
             if f_px is not None:
                 logging.debug("Focal length (from exif): %.2f", f_px)
             elif prediction["focallength_px"] is not None:
@@ -137,7 +136,7 @@ class DepthProcessing:
                 logging.info("Estimated focal length: %s", focallength_px)
 
             masked_image = self.get_masked_image(
-                image_processing, depth, rectangle_shapes, masks
+                image_processing, depth, rectangle_shapes[i], masks[i]
             )
 
             # Save Depth as npz file.
@@ -194,8 +193,8 @@ class DepthProcessing:
         self,
         image_processing: ImageProcessing,
         depth: np.ndarray,
-        rectangle_shapes: List[Tuple[int, int, int, int]] | None = None,
-        masks: List[np.ndarray] | None = None,
+        rectangle_shape: Tuple[int, int, int, int] | None = None,
+        mask: np.ndarray | None = None,
     ) -> np.ndarray:
         """Returns the masked image."""
         inverse_depth = 1 / depth
@@ -216,14 +215,14 @@ class DepthProcessing:
 
         original_size_inverse_depth_normalized = (
             image_processing.restore_original_size_from_rectangle(
-                color_depth_bgr, rectangle_shapes[i]
+                color_depth_bgr, rectangle_shape
             )
         )
         original_size_inverse_depth_normalized = (
             original_size_inverse_depth_normalized.astype("uint8")
         )
         return image_processing.apply_mask(
-            original_size_inverse_depth_normalized, masks[i]
+            original_size_inverse_depth_normalized, mask
         )
 
     def calculate_boundary_metrics(self, depth: np.ndarray, target_depth: np.ndarray):
