@@ -1,7 +1,7 @@
 from typing import List
 from src.datatypes import Image
 from src.api.operations import DirectoryOperations
-from .image_processing.image_process import ImageProcessing
+from src.processing.image_processing.image_process import ImageProcessing
 
 
 def process_image(input_directory: str, output_directory: str) -> List[Image]:

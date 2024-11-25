@@ -8,7 +8,7 @@ class Mask:
     mask: np.ndarray = field(default_factory=lambda: np.array([]))
     roof_mask: np.ndarray = field(default_factory=lambda: np.array([]))
     ground_mask: np.ndarray = field(default_factory=lambda: np.array([]))
-    rectangle_shape: Optional[Tuple[int, int, int, int]] = field(default_factory=Tuple)
+    rectangle_shape: Optional[Tuple[int, int, int, int]] = field(default_factory=lambda: (0, 0, 0, 0))
 
 @dataclass
 class Depth:
@@ -16,7 +16,14 @@ class Depth:
     focal_length: float = 0.0
 
 @dataclass
-class Image(Mask, Depth):
+class PotentialBuilding:
+    new_name: str = ""
+    potential_building: np.ndarray = field(default_factory=lambda: np.ndarray([]))
+    potential_building_resized: np.ndarray = field(default_factory=lambda: np.ndarray([]))
+    is_building: bool = False
+
+@dataclass
+class Image(Mask, Depth, PotentialBuilding):
     name: str = ""
     location: str = ""
     size: int = 0

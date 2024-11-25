@@ -1,6 +1,6 @@
 import os
 from src.solar_detection.train_model import setup_training
-from src.processing.processing_run import process_image
+from pipelines.processing_pipeline import process_image
 from src.processing.depth_processing.depth_processing import DepthProcessing
 from src.utils import plot, upload_to_gs
 from config import BaseConfig as Config

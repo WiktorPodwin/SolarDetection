@@ -265,6 +265,20 @@ class ImageProcessing:
       restored_image = np.ones(original_size)
       restored_image[y_min: y_max + 1, x_min: x_max + 1] = cropped_rectangle
       return restored_image
+    
+    def resize_image(self, image: np.ndarray, size: Tuple[int, int] = (224, 224)) -> np.ndarray:
+        """
+        Resizes the image into specified size
+        
+        Args:
+            image (np.ndarray): Image matrix
+            size (Tuple[int, int]): Size of resized image
+        
+        Returns:
+            np.ndarray: Resized image
+        """
+        resized_image = cv2.resize(image, size)
+        return resized_image
 
 
         
