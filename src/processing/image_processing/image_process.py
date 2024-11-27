@@ -115,11 +115,13 @@ class ImageProcessing:
         Returns:
             List[np.ndarray | Any]: List of images with masks around potential buildings
         """
+
         low_boundary_bgr = tuple(reversed(low_boundary))
         high_boundary_bgr = tuple(reversed(high_boundary))
 
-        mask = cv2.inRange(image, low_boundary_bgr, high_boundary_bgr)
+        reversed_mask = cv2.inRange(image, low_boundary_bgr, high_boundary_bgr)
 
+        mask = cv2.bitwise_not(reversed_mask)
         frame_mask = np.zeros_like(image)
         contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         coordinates = {}
@@ -140,8 +142,6 @@ class ImageProcessing:
         for _, value in coordinates.items():
             frame_mask = np.zeros_like(image)
             cv2.drawContours(frame_mask, [value], -1, (255, 255, 255), cv2.FILLED)
-            # x, y, w, h = cv2.boundingRect(value)
-            # cv2.rectangle(frame_mask, (x, y), (x +w, y +h), (255, 255, 255), -1)
             shapes.append(frame_mask)
         return shapes
 

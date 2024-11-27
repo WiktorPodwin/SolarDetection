@@ -1,10 +1,11 @@
 from config.config import BaseConfig as config
-from pathlib import Path
 from src.processing.image_processing.image_process import ImageProcessing
 from src.api.operations.data_operations import DirectoryOperations
 from src.datatypes import Image
-import os
+from pathlib import Path
 from typing import List
+import os
+from src.utils import upload_csv_file
 
 def extract_potential_roofs() -> List[Image]:
     original_dir_path = config.IMAGES_DIR
@@ -28,8 +29,8 @@ def extract_potential_roofs() -> List[Image]:
             image_processing = ImageProcessing()
             segmented_image = image_processing.load_image(input_file_path)
             original_image = image_processing.load_image(png_original_image_path)
-            low_boundary = (0, 2, 110)
-            high_boundary = (100, 255, 255)
+            low_boundary = (0, 0, 0)
+            high_boundary = (65, 30, 54)
             shapes = image_processing.generate_mask_around_potential_building(segmented_image, low_boundary, high_boundary)
             
             for i, shape in enumerate(shapes):
@@ -44,5 +45,5 @@ def extract_potential_roofs() -> List[Image]:
                 image_processing.save_image(building_file_path, resized_building)
 
                 potential_roofs.append(Image(name=str(file_path), new_name=plot_id_i, potential_building=building_mask))
-    
+
     return potential_roofs

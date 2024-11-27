@@ -4,7 +4,7 @@ import pandas as pd
 import selenium.common
 import torch
 from src.api.operations import DirectoryOperations, MapOperations, GSOperations
-
+from src.datatypes import Image
 
 def plot(
     field_ids: List[str | int],
@@ -56,3 +56,8 @@ def get_torch_device() -> torch.device:
 
 def load_csv_df(csv_file: str, header: int | List[Any] | None = None) -> pd.DataFrame:
     return pd.read_csv(csv_file, skipinitialspace=True, header=header)
+
+def upload_csv_file(csv_file: str, images_params: List[Image]) -> None:
+    plot_names = [image_param.new_name[:-4] for image_param in images_params]
+    df = pd.DataFrame(plot_names, columns=["plot_id"])
+    df.to_csv(csv_file, index=False)
