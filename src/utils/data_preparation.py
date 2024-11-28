@@ -8,7 +8,10 @@ from PIL import Image
 from sklearn.model_selection import train_test_split
 
 
-class BuildDataset(Dataset):
+class BuildTrainTestDataset(Dataset):
+    """
+    Class for data preparation for roof detecting
+    """
     def __init__(self, labels: pd.DataFrame, image_dir: str, transform: transforms = None):
         """
         Args:
@@ -63,7 +66,7 @@ class BuildDataset(Dataset):
         return dataloader
 
 
-def prepare_data(csv_file: str, img_dir: str) -> Tuple[DataLoader, DataLoader]:
+def prepare_train_test_data(csv_file: str, img_dir: str) -> Tuple[DataLoader, DataLoader]:
     """
     Divides the data for training and testing datasets and prepares them to model input
 
@@ -77,12 +80,10 @@ def prepare_data(csv_file: str, img_dir: str) -> Tuple[DataLoader, DataLoader]:
     data = pd.read_csv(csv_file)
     train, test = train_test_split(data, test_size=0.2, random_state=42)
     
-    train_dataset = BuildDataset(train,
-                                 img_dir)
+    train_dataset = BuildTrainTestDataset(train, img_dir)
     train_loader = train_dataset.dataloader()
     
-    test_dataset = BuildDataset(test,
-                                img_dir)
-    test_loader = test_dataset.dataloader()
+    test_dataset = BuildTrainTestDataset(test, img_dir)
+    test_loader = test_dataset.dataloader(shuffle=False)
 
     return train_loader, test_loader

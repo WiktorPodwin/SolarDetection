@@ -29,5 +29,6 @@ class BaseConfig:
 
     CHECKPOINTS_DIR = os.path.join(BASE_DIR, "checkpoints")
     ROOF_MODEL = os.path.join(CHECKPOINTS_DIR, "roof_detector.pt")
+    ROOF_METRICS_DIR = os.path.join(BASE_DIR, "src/roofs_detection/metrics")
 
     USE_GS = os.getenv("USE_GS", "False") == "True"

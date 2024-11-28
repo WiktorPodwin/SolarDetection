@@ -18,20 +18,15 @@ def test_model(test_loader: torch.Tensor, model_path: str) -> List[int]:
     model = RoofDetector()
     model.load_state_dict(torch.load(model_path, weights_only=True))
     
-    correct = 0
-    total = 0
+    labels = []
     predictions = []
+
     model.eval()
     with torch.no_grad():
-        for data, labels in tqdm(test_loader):
+        for data, label in tqdm(test_loader):
             outputs = model(data)
-            predicted = (outputs.squeeze() > 0.5)
-            correct += (predicted == labels).sum().item()
-            total += labels.size(0)
+            predicted = (outputs.squeeze() > 0.5).int()
+            predictions.extend(predicted.tolist())
+            labels.extend(label.tolist())
 
-            predictions.append(predicted)
-
-    accuracy = correct / total
-    print(f"Test Accuracy: {accuracy:.4f}")
-
-    return predictions
+    return predictions, labels
