@@ -1,7 +1,7 @@
 from src.utils import prepare_train_test_data, train_model
-from config.config import BaseConfig as config
-from src.roofs_detection.test_model import test_model
+from src.roofs_detection.model_testing import model_testing
 from src.roofs_detection.evaluate_model import EvaluateMetrics
+
 
 def roof_detector(csv_file_path: str, potential_roofs_dir: str, num_epochs: int, model_path: str, metrics_dir: str) -> None:
     """
@@ -16,7 +16,7 @@ def roof_detector(csv_file_path: str, potential_roofs_dir: str, num_epochs: int,
     """
     train_loader, test_loader = prepare_train_test_data(csv_file_path, potential_roofs_dir)
     train_model(train_loader, num_epochs=num_epochs, save_path=model_path)
-    predictions, labels = test_model(test_loader, model_path)
+    predictions, labels = model_testing(test_loader, model_path)
     evaluate_metrics = EvaluateMetrics(labels, predictions)
     evaluate_metrics.calculate_accuracy()
     evaluate_metrics.display_conf_matrix(metrics_dir)

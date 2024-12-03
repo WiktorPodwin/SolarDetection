@@ -1,4 +1,4 @@
-from pipelines.create_roof_detector import roof_detector
+from src.pipelines.create_roof_detector import roof_detector
 from config.config import BaseConfig as config
 
 if __name__ == "__main__":
@@ -9,5 +9,3 @@ if __name__ == "__main__":
         model_path=config.ROOF_MODEL, 
         metrics_dir=config.ROOF_METRICS_DIR
         )
-
-

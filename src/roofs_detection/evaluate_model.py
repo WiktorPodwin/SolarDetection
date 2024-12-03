@@ -1,8 +1,8 @@
-from sklearn.metrics import confusion_matrix, accuracy_score
+import logging
 from typing import List
+from sklearn.metrics import confusion_matrix, accuracy_score
 import seaborn as sns
 import matplotlib.pyplot as plt
-import logging
 
 class EvaluateMetrics:
     """
@@ -22,7 +22,7 @@ class EvaluateMetrics:
         Calculates accuracy score and display the value
         """
         accuracy = accuracy_score(self.labels, self.predictions)
-        logging.info(f"Test Accuracy: {accuracy:.4f}")
+        logging.info("Test Accuracy: %.4f", accuracy)
 
     def display_conf_matrix(self, dir_path: str) -> None:
         """

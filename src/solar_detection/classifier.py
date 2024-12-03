@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 import torch
 from torch import nn
 from torch.utils.data import Dataset
@@ -36,7 +37,7 @@ class SolarPanelClassifier(nn.Module):
 
 class SolarPanelDataset(Dataset):
     def __init__(self, dataframe, data_dir, transform=None):
-        self.dataframe = dataframe
+        self.dataframe: pd.DataFrame = dataframe
         self.transform = transform
         self.data_dir = data_dir
 
@@ -44,11 +45,14 @@ class SolarPanelDataset(Dataset):
         return len(self.dataframe)
 
     def __getitem__(self, idx):
-        img_path = os.path.join(self.data_dir, self.dataframe.iloc[idx, 0])
+        img_path = f"{os.path.join(self.data_dir, self.dataframe.iloc[idx, 0]).replace("-", "_", 1)}.png"
         label = self.dataframe.iloc[idx, 1]
         image = Image.open(img_path).convert("RGB")  # Convert to RGB
 
         if self.transform:
             image = self.transform(image)
+
+        if isinstance(label, str):
+            label = float(label)
 
         return image, torch.tensor(label, dtype=torch.float32)
