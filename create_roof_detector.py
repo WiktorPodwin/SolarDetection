@@ -1,8 +1,8 @@
-from pipelines.create_roof_detector import roof_detector
+from src.pipelines.roof_detection import generate_model
 from config.config import BaseConfig as config
 
 if __name__ == "__main__":
-    roof_detector(
+    generate_model(
         csv_file_path=config.BUILDINGS_CSV_FILE, 
         potential_roofs_dir=config.BUILDING_DETECTION_DIR, 
         num_epochs=18, 

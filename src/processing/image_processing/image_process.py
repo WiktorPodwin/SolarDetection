@@ -281,4 +281,19 @@ class ImageProcessing:
         return resized_image
 
 
+    def connect_images(self, images: List[np.ndarray]) -> np.ndarray:
+        """
+        Connects list of images into one final image
         
+        Args:
+            images (List[np.ndarray]): List of images to connect
+            
+        Returns:
+            np.ndarray: Connected image
+        """
+        final_image = np.zeros_like(images[0])
+
+        for image in images:
+            final_image = np.where(image[:, :, :] != 0, image, final_image)
+
+        return final_image

@@ -2,7 +2,6 @@ from dataclasses import dataclass, field
 from typing import Tuple, Optional
 import numpy as np
 
-
 @dataclass
 class Mask:
     mask: np.ndarray = field(default_factory=lambda: np.array([]))
@@ -19,7 +18,7 @@ class Depth:
 class PotentialBuilding:
     new_name: str = ""
     potential_building: np.ndarray = field(default_factory=lambda: np.ndarray([]))
-    potential_building_resized: np.ndarray = field(default_factory=lambda: np.ndarray([]))
+    potential_building_transformed: np.ndarray = field(default_factory=lambda: np.ndarray([]))
     is_building: bool = False
 
 @dataclass
