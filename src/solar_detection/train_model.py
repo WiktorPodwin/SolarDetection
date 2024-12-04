@@ -15,8 +15,9 @@ def setup_training():
     csv_dataset = load_csv_df(BaseConfig.LOCATION_FIELD_CSV_DIR)
 
     # Paths to training and validation datasets
-    train_dir = BaseConfig.SOLAR_DETECTION_TRAINING_DIR
-    test_dir = BaseConfig.SOLAR_DETECTION_TEST_DIR
+    train_dir = BaseConfig.DATA_DIR + "/cut_out_plots"
+    train_df = csv_dataset.sample(frac=0.8, random_state=42)
+    test_df = csv_dataset.drop(train_df.index)
 
     # Define data transformations
     transform = transforms.Compose(
@@ -32,8 +33,8 @@ def setup_training():
     )
 
     # Load datasets
-    train_dataset = datasets.ImageFolder(root=train_dir, transform=transform)
-    test_dataset = datasets.ImageFolder(root=test_dir, transform=transform)
+    train_dataset = SolarPanelDataset(train_df, train_dir, transform=transform)
+    test_dataset = SolarPanelDataset(test_df, train_dir, transform=transform)
 
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
@@ -57,14 +58,16 @@ def setup_training():
 
 
 def train_model(
-    model, device, train_loader, test_loader, criterion, optimizer, num_epochs=20
+    model, device: torch.device, train_loader: DataLoader, test_loader: DataLoader, criterion, optimizer, num_epochs=20
 ) -> SolarPanelClassifier:
     for epoch in range(num_epochs):
         model.train()
         train_loss = 0.0
         for images, labels in train_loader:
-            images, labels = images.to(device), labels.to(device).unsqueeze(1)  # Match output shape
-            
+            images, labels = images.to(device), labels.to(device).unsqueeze(
+                1
+            )  # Match output shape
+
             optimizer.zero_grad()
             outputs = model(images)
             loss = criterion(outputs, labels)
@@ -89,8 +92,10 @@ def train_model(
                 correct += (predicted == labels).sum().item()
                 total += labels.size(0)
 
-        print(f"Epoch [{epoch+1}/{num_epochs}], "
-              f"Train Loss: {train_loss/len(train_loader):.4f}, "
-              f"Testing Data Loss: {val_loss/len(test_loader):.4f}, "
-              f"Testing Data Accuracy: {correct/total:.4f}")
+        print(
+            f"Epoch [{epoch+1}/{num_epochs}], "
+            f"Train Loss: {train_loss/len(train_loader):.4f}, "
+            f"Testing Data Loss: {val_loss/len(test_loader):.4f}, "
+            f"Testing Data Accuracy: {correct/total:.4f}"
+        )
     return model

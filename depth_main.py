@@ -1,8 +1,4 @@
-import os
-from src.solar_detection.train_model import setup_training
-from src.pipelines.depth_pipeline import process_image
-from src.processing.depth_processing.depth_processing import depth_run
-from src.utils import plot, upload_to_gs
+from src.pipelines.depth_pipeline import depth_run
 from config import BaseConfig as Config
 
 

@@ -5,7 +5,7 @@ from tqdm import tqdm
 import torch
 
 
-def train_model(train_loader: torch.Tensor, num_epochs: int = 25, save_path: str = None) -> None:
+def train_model(train_loader: torch.Tensor, num_epochs: int = 25, save_path: str | None = None) -> None:
     """
     Trains the model and saves into specified path
 
@@ -13,7 +13,7 @@ def train_model(train_loader: torch.Tensor, num_epochs: int = 25, save_path: str
         train_loader: The training data DataLoader instance
         num_epochs: The number of epochs during training
         save_path: A path to save the model
-    """       
+    """
     model = RoofDetector()
     criterion = nn.BCELoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
@@ -26,7 +26,7 @@ def train_model(train_loader: torch.Tensor, num_epochs: int = 25, save_path: str
 
         for data, labels in tqdm(train_loader):
             optimizer.zero_grad()
-            
+
             outputs = model(data)
             loss = criterion(outputs.view(-1), labels.float())
             loss.backward()
@@ -34,7 +34,7 @@ def train_model(train_loader: torch.Tensor, num_epochs: int = 25, save_path: str
 
             running_loss += loss.item()
 
-            predicted = (outputs.squeeze() > 0.5)
+            predicted = outputs.squeeze() > 0.5
             correct += (predicted == labels).sum().item()
             total += labels.size(0)
 
@@ -42,6 +42,6 @@ def train_model(train_loader: torch.Tensor, num_epochs: int = 25, save_path: str
         accuracy = correct / total
 
         print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {avg_loss:.4f}, Accuracy: {accuracy:.4f}")
-    
+
     if save_path:
         torch.save(model.state_dict(), save_path)
