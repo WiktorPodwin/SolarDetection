@@ -1,14 +1,14 @@
 from src.utils import prepare_from_csv_and_dir, prepare_for_prediction, train_model, upload_csv_file
-from config.config import BaseConfig as config
-from src.roofs_detection.model_prediction import predict
-from src.roofs_detection.evaluate_model import EvaluateMetrics
+from src.utils.model.model_prediction import predict
+from src.utils.model.evaluate_model import EvaluateMetrics
 from src.processing.image_processing.image_process import ImageProcessing
 from src.api.operations.data_operations import DirectoryOperations
-from src.datatypes import Image
+from src.roofs_detection.roof_detector import RoofDetector
 from pathlib import Path
 from typing import List
 import os
-from src.datatypes import Image as Img
+from src.datatypes import Image
+from typing import Tuple
 
 def extract_potential_roofs(base_dir: str, depth_dir: str, potential_roofs_dir: str) -> List[Image]:
     """
@@ -53,40 +53,53 @@ def extract_potential_roofs(base_dir: str, depth_dir: str, potential_roofs_dir: 
                 resized_building = image_processing.resize_image(extracted_buliding)
                 image_processing.save_image(building_file_path, resized_building)
 
-                potential_roofs.append(Image(name=str(file_path), new_name=plot_id_i, potential_building=building_mask, potential_building_transformed=resized_building, is_building=False))
+                potential_roofs.append(Image(name=str(file_path.with_suffix('.png')), 
+                                             new_name=plot_id_i, 
+                                             potential_building=building_mask, 
+                                             potential_building_transformed=resized_building
+                                             ))
 
     return potential_roofs
 
 
 def generate_model(csv_file_path: str, 
                    potential_roofs_dir: str, 
-                   num_epochs: int, 
+                   num_epochs: int,
                    model_path: str, 
-                   metrics_dir: str) -> None:
+                   metrics_dir: str,
+                   enhance_val: int = 1,
+                   resize_val: int | Tuple[int, int] = None,
+                   learning_rate: float = 0.0001
+                   ) -> None:
     """
     Prepares the data, trains model and tests his performance
     
     Args:
-        csv_file_path (str): A path to the csv file storing potential roofs labels
-        potential_roofs_dir (str): A path to the directory storing potential roofs
+        csv_file_path (str): A path to the csv file storing plots ID and roofs labels
+        potential_roofs_dir (str): A path to the directory storing roofs
         num_epochs (int): Number of epochs
         model_path (str): A path to storing the model
         metrics_dir (str): A directory path for storing metrics
+        enhance_val (int): Data replication number
+        resize_val (int | Tuple[int, int]): Shape of resized image
+        learning_rate (float): Learning rate for model training
     """
-    train_loader, test_loader, labels = prepare_from_csv_and_dir(csv_file_path, potential_roofs_dir)
-    train_model(train_loader, num_epochs=num_epochs, save_path=model_path)
-    predictions = predict(test_loader, model_path)
+    train_loader, test_loader, labels = prepare_from_csv_and_dir(csv_file_path, potential_roofs_dir, enhance_val, resize_val)
+    model = RoofDetector()
+    train_model(model, train_loader, num_epochs=num_epochs, lr=learning_rate, save_path=model_path)
+    predictions = predict(model, test_loader, model_path)
     evaluate_metrics = EvaluateMetrics(labels, predictions)
     evaluate_metrics.calculate_accuracy()
     evaluate_metrics.display_conf_matrix(metrics_dir)
 
-def prediction(potential_roofs: List[Img], model_path: str, img_dir: str) -> None:
+
+def prediction(potential_roofs: List[Image], model_path: str, img_dir: str) -> None:
     """
     Prepares the data to roof predictions, selects only images with predicted roof, 
     combines them and saves to specified directory
 
     Args:
-        potential_roofs (List[Img]): List of Image classes, storing potential roof parameters
+        potential_roofs (List[Image]): List of Image classes, storing potential roof parameters
         model_path (str): Path to the saved model
         img_dir (str): Directory path to store extracted roofs
     """
@@ -95,15 +108,15 @@ def prediction(potential_roofs: List[Img], model_path: str, img_dir: str) -> Non
     img_processing = ImageProcessing()
     roofs = dict()
 
-    for i, Img in enumerate(potential_roofs):
+    for i, Image in enumerate(potential_roofs):
         if pred[i] == 1:
-            masked_roof = Img.potential_building
+            masked_roof = Image.potential_building
             cropped_roof = img_processing.crop_plot(masked_roof)
 
-            if Img.name in roofs:
-                roofs[Img.name].append(cropped_roof)
+            if Image.name in roofs:
+                roofs[Image.name].append(cropped_roof)
             else:
-                roofs[Img.name] = [cropped_roof]
+                roofs[Image.name] = [cropped_roof]
 
     for key, values in roofs.items():
         roofs_extracted = img_processing.connect_images(values)

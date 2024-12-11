@@ -23,16 +23,15 @@ class BaseConfig:
     SA_CREDENTIALS_PATH = os.path.join(BASE_DIR, "credentials.json")
     GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
 
-    LOCATION_FIELD_CSV_DIR = os.path.join(DATA_DIR, "locations.csv")
+    LOCATION_CSV_FILE = os.path.join(DATA_DIR, "locations.csv")
     BUILDINGS_CSV_FILE = os.path.join(DATA_DIR, "potential_buildings.csv")
-    
-    SOLAR_DETECTION_TRAINING_DIR = os.path.join(DATA_DIR, "solar-detection/training")
-    SOLAR_DETECTION_TEST_DIR = os.path.join(DATA_DIR, "solar-detection/test")
-    SOLAR_DETECTION_VALIDATION_DIR = os.path.join(DATA_DIR, "solar-detection/validation")
 
     CHECKPOINTS_DIR = os.path.join(BASE_DIR, "checkpoints")
 
     ROOF_MODEL = os.path.join(CHECKPOINTS_DIR, "roof_detector.pt")
     ROOF_METRICS_DIR = os.path.join(BASE_DIR, "src/roofs_detection/metrics")
+
+    SOLAR_ROOF_MODEL = os.path.join(CHECKPOINTS_DIR, "solar_roof_detector.pt")
+    SOLAR_ROOF_METRICS_DIR = os.path.join(BASE_DIR, "src/solar_detection/metrics")
 
     USE_GS = os.getenv("USE_GS", "False") == "True"
