@@ -1,6 +1,4 @@
-from src.utils import prepare_from_csv_and_dir, prepare_for_prediction, train_model, upload_csv_file
-from src.utils.model.model_prediction import predict
-from src.utils.model.evaluate_model import EvaluateMetrics
+from src.utils import prepare_from_csv_and_dir, prepare_for_prediction, train_model, predict, EvaluateMetrics, upload_csv_file
 from src.processing.image_processing.image_process import ImageProcessing
 from src.api.operations.data_operations import DirectoryOperations
 from src.roofs_detection.roof_detector import RoofDetector
@@ -86,11 +84,12 @@ def generate_model(csv_file_path: str,
     """
     train_loader, test_loader, labels = prepare_from_csv_and_dir(csv_file_path, potential_roofs_dir, enhance_val, resize_val)
     model = RoofDetector()
-    train_model(model, train_loader, num_epochs=num_epochs, lr=learning_rate, save_path=model_path)
+    history = train_model(model, train_loader, num_epochs=num_epochs, lr=learning_rate, save_path=model_path)
     predictions = predict(model, test_loader, model_path)
     evaluate_metrics = EvaluateMetrics(labels, predictions)
     evaluate_metrics.calculate_accuracy()
     evaluate_metrics.display_conf_matrix(metrics_dir)
+    evaluate_metrics.display_history(history, metrics_dir)
 
 
 def prediction(potential_roofs: List[Image], model_path: str, img_dir: str) -> None:
@@ -104,9 +103,12 @@ def prediction(potential_roofs: List[Image], model_path: str, img_dir: str) -> N
         img_dir (str): Directory path to store extracted roofs
     """
     dataloader = prepare_for_prediction(potential_roofs)
-    pred = predict(dataloader, model_path)
+
+    model = RoofDetector()
+    pred = predict(model, dataloader, model_path)
     img_processing = ImageProcessing()
     roofs = dict()
+    DirectoryOperations.create_directory(img_dir)
 
     for i, Image in enumerate(potential_roofs):
         if pred[i] == 1:

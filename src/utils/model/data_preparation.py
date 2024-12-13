@@ -131,21 +131,6 @@ class BuildTrainTestDataset(Dataset):
             return image, label
         else:
             return image
-    
-    def dataloader(self, batch_size: int = 32, shuffle: bool = True) -> DataLoader:
-        """
-        Creates a DataLoader from the current dataset instance
-        
-        Args:
-            batch_size (int): Number of samples per batch
-            shuffle (bool): Whether to shuffle the dataset
-        
-        Returns:
-            DataLoader: A DataLoader instance
-        """
-        dataloader = DataLoader(self, batch_size=batch_size, shuffle=shuffle)
-        return dataloader
-
 
 def prepare_from_csv_and_dir(csv_file: str, img_dir: str, enhance_val: int, resize_val: int | Tuple[int, int] = None) -> Tuple[DataLoader, DataLoader, List[int]]:
     """

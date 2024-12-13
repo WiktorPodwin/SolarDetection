@@ -44,3 +44,28 @@ class EvaluateMetrics:
         plt.close()
         logging.info("Successfully saved confusion matrix to the file: %s", save_path)
 
+    def display_history(self, history: List[float], dir_path: str) -> None:
+        """
+        Display history of accuracy function during training
+
+        Args:
+            history (List[float]): List of accuracy history during training
+            dir_path (str): Path to directory for storing graph
+        """
+        epochs = [epoch + 1 for epoch in range(len(history))]
+
+        plt.figure(figsize=(12, 7))
+        plt.plot(epochs, history)
+        plt.title("Accuracy history")
+        plt.xlabel("Epochs")
+        plt.ylabel("Accuracy")
+        plt.title("Accuracy history")
+        plt.grid()
+        plt.tight_layout()
+
+        plt.xticks(range(1, len(epochs) + 1, 5))
+        
+        save_path = dir_path + "/history.png"
+        plt.savefig(save_path)
+        plt.close()
+        logging.info("Successfully saved accuracy history graph to the file: %s", save_path)
