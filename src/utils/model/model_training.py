@@ -25,7 +25,7 @@ def train_model(model: torch.Tensor,
     """
     criterion = nn.BCELoss()
     optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=0.0001)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=int(num_epochs/3), gamma=0.5)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=max(1, int(num_epochs/3)), gamma=0.5)
     history = []
 
     for epoch in range(num_epochs):

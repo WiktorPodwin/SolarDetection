@@ -1,4 +1,4 @@
-from src.utils import prepare_from_csv_and_dir, prepare_for_prediction, train_model, predict, EvaluateMetrics
+from src.utils import prepare_from_csv_and_dir, prepare_for_prediction, train_model, predict, EvaluateMetrics, get_torch_device
 from src.solar_detection.solar_detector import SolarRoofDetector
 from typing import Tuple
 
@@ -7,8 +7,9 @@ def generate_model(csv_file_path: str,
                    num_epochs: int,
                    model_path: str, 
                    metrics_dir: str,
-                   enhance_val: int = 1,
+                   data_multiplier: int = 1,
                    resize_val: int | Tuple[int, int] = None,
+                   batch_size: int = 32,
                    learning_rate: float = 0.0001
                    ) -> None:
     """
@@ -20,12 +21,14 @@ def generate_model(csv_file_path: str,
         num_epochs (int): Number of epochs
         model_path (str): A path to storing the model
         metrics_dir (str): A directory path for storing metrics
-        enhance_val (int): Data replication number
+        data_multiplier (int): Data multiplication number
         resize_val (int | Tuple[int, int]): Shape of resized image
+        batch_size (int): Number of samples in batch
         learning_rate (float): Learning rate for model training
     """
-    train_loader, test_loader, labels = prepare_from_csv_and_dir(csv_file_path, potential_roofs_dir, enhance_val, resize_val)
-    model = SolarRoofDetector()
+    train_loader, test_loader, labels = prepare_from_csv_and_dir(csv_file_path, potential_roofs_dir, data_multiplier, resize_val, batch_size)
+    device = get_torch_device()
+    model = SolarRoofDetector().to(device)
     history = train_model(model, train_loader, num_epochs=num_epochs, lr=learning_rate, save_path=model_path)
     predictions = predict(model, test_loader, model_path)
     evaluate_metrics = EvaluateMetrics(labels, predictions)

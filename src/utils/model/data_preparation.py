@@ -132,12 +132,16 @@ class BuildTrainTestDataset(Dataset):
         else:
             return image
 
-def prepare_from_csv_and_dir(csv_file: str, img_dir: str, enhance_val: int, resize_val: int | Tuple[int, int] = None) -> Tuple[DataLoader, DataLoader, List[int]]:
+def prepare_from_csv_and_dir(csv_file: str, 
+                             img_dir: str, 
+                             data_multiplier: int, 
+                             resize_val: int | Tuple[int, int] = None,
+                             batch_size: int = 32) -> Tuple[DataLoader, DataLoader, List[int]]:
     """
     Divides the data for training and testing datasets and prepares them to model input
 
     Args:
-        enhance_val (int): Data replication number
+        data_multiplier (int): Data multiplication number
         csv_file (str): Path to the csv file with image names and labels.
         image_dir (str): Directory with all the images.
         resize_val (int | Tuple[int, int]): Shape of resized image
@@ -176,7 +180,7 @@ def prepare_from_csv_and_dir(csv_file: str, img_dir: str, enhance_val: int, resi
                     transforms.ToTensor(),
                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
         
-    for _ in range(enhance_val):
+    for _ in range(data_multiplier):
         train_dataset = BuildTrainTestDataset(x_train, y_train, img_dir, training=True, transform=transform)
         test_dataset = BuildTrainTestDataset(x_test, y_test, img_dir, training=False, transform=transform)
         
@@ -185,9 +189,9 @@ def prepare_from_csv_and_dir(csv_file: str, img_dir: str, enhance_val: int, resi
 
     train_combined, test_combined = ConcatDataset(train), ConcatDataset(test)
 
-    train_loader = DataLoader(train_combined, batch_size=32, shuffle=True)
-    test_loader = DataLoader(test_combined, batch_size=32, shuffle=False)
+    train_loader = DataLoader(train_combined, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_combined, batch_size=batch_size, shuffle=False)
     
-    y_combined = pd.concat([y_test] * enhance_val, ignore_index=True)
+    y_combined = pd.concat([y_test] * data_multiplier, ignore_index=True)
     return train_loader, test_loader, y_combined.tolist()
 
