@@ -26,9 +26,11 @@ def train_model(model: torch.Tensor,
     Returns:
         List[float]: List of accuracy history during training
     """
+    device = next(model.parameters()).device
     decision = torch.cuda.is_available()
     if decision:
         scaler = GradScaler()
+    
 
     criterion = nn.BCELoss()
     optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=0.0001)
@@ -43,6 +45,8 @@ def train_model(model: torch.Tensor,
 
         optimizer.zero_grad()
         for i, (data, labels) in enumerate(tqdm(train_loader)):
+            data = data.to(device)
+            labels = labels.to(device)
             if decision:
                 with autocast():
                     outputs = model(data)
