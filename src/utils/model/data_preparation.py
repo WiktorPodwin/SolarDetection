@@ -189,8 +189,8 @@ def prepare_from_csv_and_dir(csv_file: str,
 
     train_combined, test_combined = ConcatDataset(train), ConcatDataset(test)
 
-    train_loader = DataLoader(train_combined, batch_size=batch_size, shuffle=True)
-    test_loader = DataLoader(test_combined, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(train_combined, batch_size=batch_size, shuffle=True, pin_memory=torch.cuda.is_available())
+    test_loader = DataLoader(test_combined, batch_size=batch_size, shuffle=False, pin_memory=torch.cuda.is_available())
     
     y_combined = pd.concat([y_test] * data_multiplier, ignore_index=True)
     return train_loader, test_loader, y_combined.tolist()

@@ -9,7 +9,7 @@ if __name__ == "__main__":
         model_path=config.ROOF_MODEL, 
         metrics_dir=config.ROOF_METRICS_DIR,
         enhance_val=3,
-        learning_rate=0.0001,
+        learning_rate=0.001,
         resize_val=(128, 128)
         )
 

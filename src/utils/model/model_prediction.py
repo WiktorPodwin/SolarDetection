@@ -25,8 +25,9 @@ def predict(model: Tensor, dataloader: DataLoader, model_path: str) -> List[int]
     with torch.no_grad():
         for image in tqdm(dataloader):
             outputs = model(image)
-            predicted = (outputs.squeeze() > 0.5).int()
-            predictions.extend(predicted.tolist())
+            outputs = outputs.detach()
+            pred = (outputs.squeeze() > 0.5).int()
+            predictions.extend(pred.tolist())
 
     return predictions
 
