@@ -22,8 +22,9 @@ class EvaluateMetrics:
         Calculates accuracy score and display the value
         """
         accuracy = accuracy_score(self.labels, self.predictions)
-        logging.info("Test Accuracy: %.4f", accuracy)
-
+        # logging.info("Test Accuracy: %.4f", accuracy)
+        print("Test Accuracy: ", round(accuracy, 3))
+    
     def display_conf_matrix(self, dir_path: str) -> None:
         """
         Calculates and saves confusion matrix as a graph

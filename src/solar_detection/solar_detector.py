@@ -5,7 +5,7 @@ class SolarRoofDetector(nn.Module):
     """
     Solar detector on roofs model
     """
-    def __init__(self, in_channels: int = 3, dropout_rate: float = 0.1, width: int = 1450, height: int = 780):
+    def __init__(self, in_channels: int = 3, dropout_rate: float = 0.1):
         """
         Args:
             in_channels (int): The number of input channels 
@@ -30,10 +30,12 @@ class SolarRoofDetector(nn.Module):
         self.conv7 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1)
         self.bn7 = nn.BatchNorm2d(128)
 
-        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.pool2 = nn.AdaptiveAvgPool2d(1)
+
         self.dropout = nn.Dropout(p=dropout_rate)
-        self.fc1 = nn.Linear(128*97*181, 1)
-        self.sigmoid = nn.Sigmoid()
+        self.fc1 = nn.Linear(128, 1)
+        # self.sigmoid = nn.Sigmoid()
 
     def forward(self, x: Tensor) -> Tensor:
         """
@@ -47,16 +49,16 @@ class SolarRoofDetector(nn.Module):
         """
         x = nn.ReLU()(self.bn1(self.conv1(x)))
         x = nn.ReLU()(self.bn2(self.conv2(x)))
-        x = self.pool(nn.ReLU()(self.bn3(self.conv3(x))))
+        x = self.pool1(nn.ReLU()(self.bn3(self.conv3(x))))
 
         x = nn.ReLU()(self.bn4(self.conv4(x)))
-        x = self.pool(nn.ReLU()(self.bn5(self.conv5(x))))
+        x = self.pool1(nn.ReLU()(self.bn5(self.conv5(x))))
 
         x = nn.ReLU()(self.bn6(self.conv6(x)))
-        x = self.pool(nn.ReLU()(self.bn7(self.conv7(x))))
+        x = self.pool2(nn.ReLU()(self.bn7(self.conv7(x))))
 
         x = x.reshape(x.shape[0], -1)
         x = self.dropout(x)
         x = self.fc1(x)
-        x = self.sigmoid(x)
+        # x = self.sigmoid(x)
         return x

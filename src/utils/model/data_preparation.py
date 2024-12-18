@@ -9,6 +9,7 @@ from PIL import Image
 from sklearn.model_selection import train_test_split
 from src.datatypes import Image as Img
 from src.api.operations.data_operations import DirectoryOperations
+from src.processing.image_processing.image_process import ImageProcessing
 
 class BuildTestDataset(Dataset):
     """
@@ -123,7 +124,11 @@ class BuildTrainTestDataset(Dataset):
         for training data and image for test data
         """
         img_path = os.path.join(self.image_dir, self.features.iloc[index])
-        image = Image.open(img_path).convert('RGB')
+        img_process = ImageProcessing()
+        image = img_process.load_image(img_path)
+        image = img_process.crop_rectangle_around_plot(image, False, False, False)
+        image = Image.fromarray(image)
+        # image = Image.open(img_path).convert('RGB')
         image = self.transform(image)
 
         if self.training:
@@ -136,7 +141,7 @@ def prepare_from_csv_and_dir(csv_file: str,
                              img_dir: str, 
                              data_multiplier: int, 
                              resize_val: int | Tuple[int, int] = None,
-                             batch_size: int = 32) -> Tuple[DataLoader, DataLoader, List[int]]:
+                             batch_size: int = 32) -> Tuple[DataLoader, DataLoader, List[int], pd.Series]:
     """
     Divides the data for training and testing datasets and prepares them to model input
 
@@ -147,10 +152,11 @@ def prepare_from_csv_and_dir(csv_file: str,
         resize_val (int | Tuple[int, int]): Shape of resized image
     
     Returns:
-        Tuple[DataLoader, DataLoader, List[int]]: 
+        Tuple[DataLoader, DataLoader, List[int], pd.Series]: 
          - Training DataLoader instance
          - Test DataLoader instance
          - List of test labels
+         - Data classes distribution
     """
     data = pd.read_csv(csv_file)
 
@@ -163,6 +169,7 @@ def prepare_from_csv_and_dir(csv_file: str,
     y_data = data.iloc[:, 1]
     x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.15, random_state=42)
     
+    class_distribution = y_data.value_counts()
     train = []
     test = []
 
@@ -193,5 +200,5 @@ def prepare_from_csv_and_dir(csv_file: str,
     test_loader = DataLoader(test_combined, batch_size=batch_size, shuffle=False, pin_memory=torch.cuda.is_available())
     
     y_combined = pd.concat([y_test] * data_multiplier, ignore_index=True)
-    return train_loader, test_loader, y_combined.tolist()
+    return train_loader, test_loader, y_combined.tolist(), class_distribution
 

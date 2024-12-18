@@ -198,7 +198,8 @@ class ImageProcessing:
     def crop_rectangle_around_plot(self, 
                                    image: np.ndarray, 
                                    return_coordinates: bool = False,
-                                   with_mask: bool = False,
+                                   return_with_mask: bool = False,
+                                   input_mask: bool = True,
                                    ) -> Tuple[np.ndarray, 
                                               Optional[Tuple[int,...]]]:
         """
@@ -207,15 +208,20 @@ class ImageProcessing:
         Args:
             image (np.ndarray): Image matrix
             return_coordinates (bool): If should return rectangle shape
-            with_mask (bool): If should return image with mask
+            return_with_mask (bool): If should return image with the mask
+            input_mask (bool): If input image contains mask
 
         Returns:
             np.ndarray: Cropped rectangle around plot matrix
             Optional[Tuple[int,...]]: Size of rectangle (x_min, x_max, y_min, y_max)
         """
         try:
-            mask = image[:, :, 3]
-            if with_mask:
+            if input_mask:
+                mask = image[:, :, 3]
+            else:
+                mask = np.where(np.any(image != [0, 0, 0], axis=-1), 255, 0).astype("uint8")
+                
+            if return_with_mask:
                 final_image = image.copy()
             else:
                 final_image = image[:, :, :3]
@@ -225,6 +231,7 @@ class ImageProcessing:
                 return image, None
             else: 
                 return image
+
         y_indicies, x_indicies = np.where(mask != 0)
 
         if y_indicies.size == 0 or x_indicies.size == 0:

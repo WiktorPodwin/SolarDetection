@@ -4,11 +4,12 @@ from config.config import BaseConfig as config
 if __name__ == "__main__":
     generate_model(config.LOCATION_CSV_FILE,
                    config.ROOFS_DIR,
-                   4,
-                   config.SOLAR_ROOF_MODEL,
-                   config.SOLAR_ROOF_METRICS_DIR,
-                   2,
-                #    (768, 1440),
+                   num_epochs=30,
+                   model_path=config.SOLAR_ROOF_MODEL,
+                   metrics_dir=config.SOLAR_ROOF_METRICS_DIR,
+                   data_multiplier=1,
+                   resize_val=(224, 224),
                    learning_rate=0.001,
-                   batch_size=2
+                   batch_size=4,
+                   accumulation_steps=1
                    )
