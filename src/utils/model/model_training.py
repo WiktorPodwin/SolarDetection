@@ -5,7 +5,7 @@ import torch
 from typing import List
 from torch.amp import GradScaler, autocast
 import pandas as pd
-from sklearn.model_selection import StratifiedKFold
+# from sklearn.model_selection import StratifiedKFold
 
 def train_model(device: torch.device, 
                 model: torch.Tensor, 
@@ -14,7 +14,7 @@ def train_model(device: torch.device,
                 num_epochs: int = 25, 
                 lr: float = 0.0001,
                 step_size: int = None, 
-                accumulation_steps: int = 5,
+                accumulation_steps: int = 1,
                 save_path: str | None = None
                 ) -> List[float]:
     """
@@ -32,20 +32,20 @@ def train_model(device: torch.device,
         save_path: A path to save the model
     
     Returns:
-        List[float]: List of accuracy history during training
+        List[float]: List of loss function history during training
     """
     decision = torch.cuda.is_available()
     if decision:
         scaler = GradScaler()
-   
+    
     pos_weight = torch.tensor([class_distribution[0] / class_distribution[1]]).to(device)
     criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
-    optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=0.0001)
+    optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=0.0005)
     
     if step_size is None:
         step_size = max(1, int(num_epochs/3))
 
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=1)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=0.8)
     history = []
 
     for epoch in range(num_epochs):
@@ -86,16 +86,12 @@ def train_model(device: torch.device,
             correct += (predicted == labels).sum().item()
             total += labels.size(0)
 
-            del loss, outputs
-
         avg_loss = running_loss / len(train_loader)
         accuracy = correct / total
 
         print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {avg_loss:.4f}, Accuracy: {accuracy:.4f}")
         
-        history.append(accuracy)
-        
-        # if (i + 1) % accumulation_steps == 0 or (i + 1) == len(train_loader):
+        history.append(avg_loss)
         scheduler.step()
 
     if save_path:

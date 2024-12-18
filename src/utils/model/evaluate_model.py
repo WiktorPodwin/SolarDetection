@@ -23,7 +23,7 @@ class EvaluateMetrics:
         """
         accuracy = accuracy_score(self.labels, self.predictions)
         # logging.info("Test Accuracy: %.4f", accuracy)
-        print("Test Accuracy: ", round(accuracy, 3))
+        print("Test Accuracy:", round(accuracy, 3))
     
     def display_conf_matrix(self, dir_path: str) -> None:
         """
@@ -47,20 +47,19 @@ class EvaluateMetrics:
 
     def display_history(self, history: List[float], dir_path: str) -> None:
         """
-        Display history of accuracy function during training
+        Display history of loss function during training
 
         Args:
-            history (List[float]): List of accuracy history during training
+            history (List[float]): List of luss function history during training
             dir_path (str): Path to directory for storing graph
         """
         epochs = [epoch + 1 for epoch in range(len(history))]
 
         plt.figure(figsize=(12, 7))
         plt.plot(epochs, history)
-        plt.title("Accuracy history")
+        plt.title("Loss function history")
         plt.xlabel("Epochs")
-        plt.ylabel("Accuracy")
-        plt.title("Accuracy history")
+        plt.ylabel("Loss")
         plt.grid()
         plt.tight_layout()
 
@@ -69,4 +68,4 @@ class EvaluateMetrics:
         save_path = dir_path + "/history.png"
         plt.savefig(save_path)
         plt.close()
-        logging.info("Successfully saved accuracy history graph to the file: %s", save_path)
+        logging.info("Successfully saved loss history graph to the file: %s", save_path)

@@ -1,4 +1,4 @@
-from src.utils import prepare_from_csv_and_dir, prepare_for_prediction, train_model, predict, EvaluateMetrics, upload_csv_file
+from src.utils import prepare_from_csv_and_dir, prepare_for_prediction, train_model, predict, EvaluateMetrics, upload_csv_file, get_torch_device
 from src.processing.image_processing.image_process import ImageProcessing
 from src.api.operations.data_operations import DirectoryOperations
 from src.roofs_detection.roof_detector import RoofDetector
@@ -7,6 +7,7 @@ from typing import List
 import os
 from src.datatypes import Image
 from typing import Tuple
+import torch
 
 def extract_potential_roofs(base_dir: str, depth_dir: str, potential_roofs_dir: str) -> List[Image]:
     """
@@ -46,7 +47,7 @@ def extract_potential_roofs(base_dir: str, depth_dir: str, potential_roofs_dir: 
                 building_file_path = os.path.join(potential_roofs_dir, plot_id_i)
 
                 building_mask = image_processing.apply_mask(original_image, shape)
-                extracted_rectangle = image_processing.crop_rectangle_around_plot(building_mask, with_mask=True)
+                extracted_rectangle = image_processing.crop_rectangle_around_plot(building_mask, return_with_mask=True)
                 extracted_buliding = image_processing.crop_plot(extracted_rectangle)
                 resized_building = image_processing.resize_image(extracted_buliding)
                 image_processing.save_image(building_file_path, resized_building)
@@ -60,39 +61,47 @@ def extract_potential_roofs(base_dir: str, depth_dir: str, potential_roofs_dir: 
     return potential_roofs
 
 
-def generate_model(csv_file_path: str, 
+def generate_model(device: torch.device,
+                   csv_file_path: str, 
                    potential_roofs_dir: str, 
                    num_epochs: int,
                    model_path: str, 
                    metrics_dir: str,
-                   enhance_val: int = 1,
+                   data_multiplier: int = 1,
                    resize_val: int | Tuple[int, int] = None,
-                   learning_rate: float = 0.0001
+                   batch_size: int = 32,
+                   learning_rate: float = 0.0001,
+                   step_size: int = None,
+                   accumulation_steps: int = 1
                    ) -> None:
     """
     Prepares the data, trains model and tests his performance
     
     Args:
+        device (torch.device): The torch device
         csv_file_path (str): A path to the csv file storing plots ID and roofs labels
         potential_roofs_dir (str): A path to the directory storing roofs
         num_epochs (int): Number of epochs
         model_path (str): A path to storing the model
         metrics_dir (str): A directory path for storing metrics
-        enhance_val (int): Data replication number
+        data_multiplier (int): Data multiplication number
         resize_val (int | Tuple[int, int]): Shape of resized image
+        batch_size (int): Number of samples in batch
         learning_rate (float): Learning rate for model training
+        step_size (int): Step size in learning rate scheduler
+        accumulation_steps (int): Number of batches to accumulate gradients before performing an optimizer step
     """
-    train_loader, test_loader, labels = prepare_from_csv_and_dir(csv_file_path, potential_roofs_dir, enhance_val, resize_val)
-    model = RoofDetector()
-    history = train_model(model, train_loader, num_epochs=num_epochs, lr=learning_rate, save_path=model_path)
-    predictions = predict(model, test_loader, model_path)
+    train_loader, test_loader, labels, class_distribution = prepare_from_csv_and_dir(csv_file_path, potential_roofs_dir, data_multiplier, resize_val, batch_size)
+    model = RoofDetector().to(device)
+    history = train_model(device, model, train_loader, class_distribution, num_epochs=num_epochs, lr=learning_rate, step_size=step_size, accumulation_steps=accumulation_steps, save_path=model_path)
+    predictions = predict(device, model, test_loader, model_path)
     evaluate_metrics = EvaluateMetrics(labels, predictions)
     evaluate_metrics.calculate_accuracy()
     evaluate_metrics.display_conf_matrix(metrics_dir)
     evaluate_metrics.display_history(history, metrics_dir)
 
 
-def prediction(potential_roofs: List[Image], model_path: str, img_dir: str) -> None:
+def prediction(device: torch.device, potential_roofs: List[Image], model_path: str, img_dir: str) -> None:
     """
     Prepares the data to roof predictions, selects only images with predicted roof, 
     combines them and saves to specified directory
@@ -104,8 +113,8 @@ def prediction(potential_roofs: List[Image], model_path: str, img_dir: str) -> N
     """
     dataloader = prepare_for_prediction(potential_roofs)
 
-    model = RoofDetector()
-    pred = predict(model, dataloader, model_path)
+    model = RoofDetector().to(device)
+    pred = predict(device, model, dataloader, model_path)
     img_processing = ImageProcessing()
     roofs = dict()
     DirectoryOperations.create_directory(img_dir)

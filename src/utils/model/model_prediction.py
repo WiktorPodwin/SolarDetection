@@ -5,7 +5,7 @@ from torch import Tensor
 from typing import List
 
 
-def predict(device: torch.device, model: Tensor, dataloader: DataLoader, model_path: str) -> List[int]:
+def predict(device: torch.device, model: Tensor, dataloader: DataLoader, model_path: str, apply_sigmoid: bool = False) -> List[int]:
     """
     Predict new labels
     
@@ -14,21 +14,50 @@ def predict(device: torch.device, model: Tensor, dataloader: DataLoader, model_p
         model (Tensor): Model initiation class
         dataloader: (DataLoader): The testing DataLoader instance
         model_path (str): Path to the model
-    
+        apply_sigmoid (bool): If after prediction should be added sigmoid function
     Returns:
         List[int]: List of predicted labels
     """
     model.load_state_dict(torch.load(model_path, weights_only=True))
-    
     predictions = []
-
     model.eval()
+
     with torch.no_grad():
         for image in tqdm(dataloader):
             image = image.to(device)
             outputs = model(image)
+            if apply_sigmoid:
+                outputs = torch.sigmoid(outputs)
             outputs = outputs.detach()
-            pred = (outputs.squeeze() > 0.5).int()
-            predictions.extend(pred.view(-1).cpu().tolist())
+            pred = (outputs > 0.5).int()
+            outputs = outputs.view(-1)
+            predictions.extend(pred.cpu().tolist())
     return predictions
 
+
+
+# def predict(device: torch.device, model: Tensor, dataloader: DataLoader, model_path: str) -> List[int]:
+#     """
+#     Predict new labels
+    
+#     Args:
+#         device (torch.device): Calculation units
+#         model (Tensor): Model initiation class
+#         dataloader: (DataLoader): The testing DataLoader instance
+#         model_path (str): Path to the model
+    
+#     Returns:
+#         List[int]: List of predicted labels
+#     """
+#     model.load_state_dict(torch.load(model_path, weights_only=True))
+#     predictions = []
+#     model.eval()
+    
+#     with torch.no_grad():
+#         for image in tqdm(dataloader):
+#             image = image.to(device)
+#             outputs = model(image)
+#             outputs = outputs.detach()
+#             pred = (outputs.squeeze() > 0.5).int()
+#             predictions.extend(pred.view(-1).cpu().tolist())
+#     return predictions

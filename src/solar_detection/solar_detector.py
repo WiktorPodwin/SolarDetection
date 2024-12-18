@@ -5,7 +5,7 @@ class SolarRoofDetector(nn.Module):
     """
     Solar detector on roofs model
     """
-    def __init__(self, in_channels: int = 3, dropout_rate: float = 0.1):
+    def __init__(self, in_channels: int = 3, dropout_rate: float = 0.2):
         """
         Args:
             in_channels (int): The number of input channels 
@@ -47,7 +47,7 @@ class SolarRoofDetector(nn.Module):
         Returns:
             Tensor: The output tensor after passing through the network
         """
-        x = nn.ReLU()(self.bn1(self.conv1(x)))
+        x = self.pool1(nn.ReLU()(self.bn1(self.conv1(x))))
         x = nn.ReLU()(self.bn2(self.conv2(x)))
         x = self.pool1(nn.ReLU()(self.bn3(self.conv3(x))))
 
