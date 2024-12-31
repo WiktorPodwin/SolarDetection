@@ -17,7 +17,9 @@ class DirectoryOperations:
 
         Args:
             directory_path: Path to the directory
-            returns: List of files in the directory
+
+        Returns: 
+            list: List of files in the directory
         """
         try:
             files = glob.glob(directory_path + "/*")

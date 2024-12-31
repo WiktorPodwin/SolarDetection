@@ -1,4 +1,6 @@
-from src.utils import prepare_from_csv_and_dir, prepare_for_prediction, train_model, predict, EvaluateMetrics, upload_csv_file, get_torch_device
+from src.utils import upload_csv_file
+from src.utils.model import prepare_from_csv_and_dir, train_model, predict, EvaluateMetrics
+from src.roofs_detection.prepare_data import prepare_for_prediction
 from src.processing.image_processing.image_process import ImageProcessing
 from src.api.operations.data_operations import DirectoryOperations
 from src.roofs_detection.roof_detector import RoofDetector
@@ -107,6 +109,7 @@ def prediction(device: torch.device, potential_roofs: List[Image], model_path: s
     combines them and saves to specified directory
 
     Args:
+        device (torch.device): Torch device
         potential_roofs (List[Image]): List of Image classes, storing potential roof parameters
         model_path (str): Path to the saved model
         img_dir (str): Directory path to store extracted roofs

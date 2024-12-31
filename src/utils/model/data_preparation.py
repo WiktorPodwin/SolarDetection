@@ -7,23 +7,23 @@ import os
 from typing import Tuple, List
 from PIL import Image
 from sklearn.model_selection import train_test_split
-from src.datatypes import Image as Img
 from src.api.operations.data_operations import DirectoryOperations
 from src.processing.image_processing.image_process import ImageProcessing
+
 
 class BuildTestDataset(Dataset):
     """
     Class to data prepare data for model predictions
     """
-    def __init__(self, potential_roofs: List[Img], transform: transforms = None):
+    def __init__(self, images: List[np.ndarray], transform: transforms = None):
         """
         Args:
-            image_dir (str): Directory path with all the images.
+            images (List[np.ndarray]): List storing images to prediction.
             transform (callable, optional): Optional transform to be applied on a sample.
         """
-        self.potential_roofs = potential_roofs
+        self.images = images
         if transform:
-            self.transform = transforms 
+            self.transform = transform
         else:
             self.transform = transforms.Compose([
                 transforms.Resize(128),
@@ -38,15 +38,13 @@ class BuildTestDataset(Dataset):
         Returns:
             int: Data length
         """
-        return len(self.potential_roofs)
+        return len(self.images)
     
     def __getitem__(self, index) -> torch.Tensor:
         """
         Returns a sample at the given index
         """
-        Img = self.potential_roofs[index]
-        image = Img.potential_building_transformed
-
+        image = self.images[index]
         if isinstance(image, np.ndarray):
             image = Image.fromarray(image)
 
@@ -54,7 +52,7 @@ class BuildTestDataset(Dataset):
 
         return image 
     
-    def dataloader(self, batch_size: int = 32) -> DataLoader:
+    def dataloader(self, batch_size: int = 8) -> DataLoader:
         """
         Creates a DataLoader from the current dataset instance
         
@@ -66,95 +64,6 @@ class BuildTestDataset(Dataset):
         """
         dataloader = DataLoader(self, batch_size=batch_size)
         return dataloader
-
-def prepare_for_prediction(potential_roofs: List[Img]) -> DataLoader:
-    """
-    Prepares data for the prediction 
-    
-    Args:
-        potential_roofs (List[Img]): List of Image class storing plot ids and images
-    
-    Returns:
-        DataLoader: DataLoader instance
-    """
-    data = BuildTestDataset(potential_roofs)
-    data_loader = data.dataloader()
-    return data_loader
-
-
-# class BuildTestDataset(Dataset):
-#     """
-#     Class to data prepare data for model predictions
-#     """
-#     def __init__(self, image_dir: str, transform: transforms = None):
-#         """
-#         Args:
-#             image_dir (str): Directory path with all the images.
-#             transform (callable, optional): Optional transform to be applied on a sample.
-#         """
-#         self.image_dir = image_dir
-#         if transform:
-#             self.transform = transforms 
-#         else:
-#             self.transform = transforms.Compose([
-#                 transforms.Resize(128),
-#                 transforms.ToTensor(),
-#                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-#             ])
-
-#     def __len__(self) -> int:
-#         """
-#         Calculates length of data
-        
-#         Returns:
-#             int: Data length
-#         """
-#         return len(self.image_dir)
-    
-#     def __getitem__(self, index) -> torch.Tensor:
-#         """
-#         Returns a sample at the given index
-#         """
-#         file = self.image_dir[index]
-
-#         Img = self.potential_roofs[index]
-#         image = Img.potential_building_transformed
-
-#         if isinstance(image, np.ndarray):
-#             image = Image.fromarray(image)
-
-#         image = self.transform(image)
-
-#         return image 
-    
-#     def dataloader(self, batch_size: int = 32) -> DataLoader:
-#         """
-#         Creates a DataLoader from the current dataset instance
-        
-#         Args:
-#             batch_size (int): Number of samples per batch
-        
-#         Returns:
-#             DataLoader: A DataLoader instance
-#         """
-#         dataloader = DataLoader(self, batch_size=batch_size)
-#         return dataloader
-
-# def prepare_for_prediction(potential_roofs: List[Img]) -> DataLoader:
-#     """
-#     Prepares data for the prediction 
-    
-#     Args:
-#         potential_roofs (List[Img]): List of Image class storing plot ids and images
-    
-#     Returns:
-#         DataLoader: DataLoader instance
-#     """
-#     data = BuildTestDataset(potential_roofs)
-#     data_loader = data.dataloader()
-#     return data_loader
-
-
 
 
 

@@ -64,3 +64,23 @@ def upload_csv_file(csv_file: str, images_params: List[Image]) -> None:
     df = pd.DataFrame(plot_names, columns=["plot_id"])
     df.to_csv(csv_file, index=False)
     logging.info("Successfully saved the csv file: %s", csv_file)
+
+def apply_pred_to_csv(csv_file: str, pred: List[int], labels: List[str], col_name: str) -> None:
+    """
+    Updates a CSV file with a new column based on predictions.
+
+    Args:
+        csv_file (str): Path to the CSV file.
+        pred (List[int]): List of predictions.
+        labels (List[str]): List of plot labels.
+        col_name (str): Name of the new column to be added/changed.
+    """
+    plots = [plot.rsplit('_', 1)[0] + '-' + plot.rsplit('_', 1)[1] for plot in labels]
+    df = pd.read_csv(csv_file)
+
+    df[col_name] = 0
+    plot_to_pred = dict(zip(plots, pred))
+
+    df[col_name] = df["id"].apply(lambda x: plot_to_pred.get(x, 0))
+    df.to_csv(csv_file, index=False)
+

@@ -9,12 +9,12 @@ if __name__ == "__main__":
     generate_model(device=device,
                    csv_file_path=config.LOCATION_CSV_FILE,
                    potential_roofs_dir=config.ROOFS_DIR,
-                   num_epochs=25,
+                   num_epochs=18,
                    model_path=config.SOLAR_ROOF_MODEL,
                    metrics_dir=config.SOLAR_ROOF_METRICS_DIR,
-                   data_multiplier=1,
+                   data_multiplier=2,
                    resize_val=(224, 224),
-                   learning_rate=0.0001,
+                   learning_rate=0.0003,
                    batch_size=8,
                    accumulation_steps=1
                    )

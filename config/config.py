@@ -16,8 +16,6 @@ class BaseConfig:
     BUILDING_DETECTION_DIR = os.path.join(DATA_DIR, "potential_buildings")
     ROOFS_DIR = os.path.join(DATA_DIR, "roofs")
 
-    # MODEL_DIR = os.path.join(DATA_DIR, "models")
-
     PROJECT_ID = os.getenv("GCP_PROJECT_ID", "solar-panels")
     BUCKET_NAME = os.getenv("GS_BUCKET_NAME", "solar-panels")
     SA_CREDENTIALS_PATH = os.path.join(BASE_DIR, "credentials.json")
