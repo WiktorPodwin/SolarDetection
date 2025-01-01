@@ -10,7 +10,8 @@ setup(
     version=VERSION,
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
-    packages=find_packages(),
+    packages=find_packages(exclude=("data",)),
+    package_dir={"solar_detection": ""},
     install_requires=[
         "numpy<2",
         "opencv-python==4.10.0.84",
