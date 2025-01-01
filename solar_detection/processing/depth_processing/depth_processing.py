@@ -10,15 +10,15 @@ from tqdm import tqdm
 
 from config.config import BaseConfig
 from src import depth_pro
-from src.depth_pro.eval.boundary_metrics import (
+from solar_detection.depth_pro.eval.boundary_metrics import (
     SI_boundary_Recall,
     get_thresholds_and_weights,
     boundary_f1,
     SI_boundary_F1,
 )
-from src.utils import get_torch_device
-from src.api.operations import DirectoryOperations, GSOperations
-from src.processing.image_processing.image_process import ImageProcessing
+from solar_detection.utils import get_torch_device
+from solar_detection.api.operations import DirectoryOperations, GSOperations
+from solar_detection.processing.image_processing.image_process import ImageProcessing
 
 
 class DepthProcessing:

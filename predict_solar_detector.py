@@ -1,6 +1,6 @@
-from src.pipelines.solar_detection import prediction
+from solar_detection.pipelines.solar_detection import prediction
 from config.config import BaseConfig as config
-from src.utils import get_torch_device, apply_pred_to_csv
+from solar_detection.utils import get_torch_device, apply_pred_to_csv
 
 if __name__ == "__main__":
     device = get_torch_device()

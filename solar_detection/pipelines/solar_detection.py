@@ -1,6 +1,6 @@
-from src.utils.model import prepare_from_csv_and_dir, train_model, predict, EvaluateMetrics
-from src.solar_detection.solar_detector import SolarRoofDetector
-from src.solar_detection.prepare_data import prepare_for_prediction
+from solar_detection.utils.model import prepare_from_csv_and_dir, train_model, predict, EvaluateMetrics
+from solar_detection.solar_detection.solar_detector import SolarRoofDetector
+from solar_detection.solar_detection.prepare_data import prepare_for_prediction
 import torch
 from typing import Tuple
 from typing import List

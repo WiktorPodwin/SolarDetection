@@ -1,6 +1,6 @@
-from src.api.operations.data_operations import DirectoryOperations
-from src.processing.image_processing.image_process import ImageProcessing
-from src.utils.model import BuildTestDataset
+from solar_detection.api.operations.data_operations import DirectoryOperations
+from solar_detection.processing.image_processing.image_process import ImageProcessing
+from solar_detection.utils.model import BuildTestDataset
 from torchvision import transforms
 from typing import Tuple, List
 from torch.utils.data import DataLoader

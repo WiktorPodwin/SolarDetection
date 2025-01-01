@@ -1,6 +1,6 @@
 import solar_detection.metrics
 import solar_detection.solar_detector
-from src.pipelines.depth_pipeline import depth_run
+from solar_detection.pipelines.depth_pipeline import depth_run
 from config import BaseConfig as Config
 
 if __name__ == "__main__":

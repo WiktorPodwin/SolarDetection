@@ -1,8 +1,8 @@
 from typing import List
-from src.datatypes import Image
-from src.api.operations import DirectoryOperations
-from src.processing.image_processing.image_process import ImageProcessing
-from src.processing.depth_processing.depth_processing import DepthProcessing
+from solar_detection.datatypes import Image
+from solar_detection.api.operations import DirectoryOperations
+from solar_detection.processing.image_processing.image_process import ImageProcessing
+from solar_detection.processing.depth_processing.depth_processing import DepthProcessing
 from config import BaseConfig as Config
 
 

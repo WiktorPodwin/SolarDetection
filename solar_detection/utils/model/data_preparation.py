@@ -7,8 +7,8 @@ import os
 from typing import Tuple, List
 from PIL import Image
 from sklearn.model_selection import train_test_split
-from src.api.operations.data_operations import DirectoryOperations
-from src.processing.image_processing.image_process import ImageProcessing
+from solar_detection.api.operations.data_operations import DirectoryOperations
+from solar_detection.processing.image_processing.image_process import ImageProcessing
 
 
 class BuildTestDataset(Dataset):

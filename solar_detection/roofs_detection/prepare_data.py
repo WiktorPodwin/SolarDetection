@@ -1,5 +1,5 @@
-from src.utils.model import BuildTestDataset
-from src.datatypes import Image as Img
+from solar_detection.utils.model import BuildTestDataset
+from solar_detection.datatypes import Image as Img
 from torchvision import transforms
 from typing import List
 from torch.utils.data import DataLoader

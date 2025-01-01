@@ -3,8 +3,8 @@ from typing import Any, List
 import pandas as pd
 import selenium.common
 import torch
-from src.api.operations import DirectoryOperations, MapOperations, GSOperations
-from src.datatypes import Image
+from solar_detection.api.operations import DirectoryOperations, MapOperations, GSOperations
+from solar_detection.datatypes import Image
 
 
 def plot(
