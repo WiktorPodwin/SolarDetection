@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 NAME = "solar_detection"
-VERSION = "0.2"
+VERSION = "0.1"
 DESCRIPTION = "Solar Detection"
 LONG_DESCRIPTION = "Solar Detection"
 
@@ -10,8 +10,7 @@ setup(
     version=VERSION,
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
-    # packages=find_packages(),
-    packages=[NAME],
+    packages=find_packages(),
     install_requires=[
         "numpy<2",
         "opencv-python==4.10.0.84",
