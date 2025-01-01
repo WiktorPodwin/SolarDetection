@@ -1,9 +1,11 @@
+import solar_detection.metrics
+import solar_detection.solar_detector
 from src.pipelines.depth_pipeline import depth_run
 from config import BaseConfig as Config
 
-
 if __name__ == "__main__":
     depth_run()
+    
     # plot(
     #     list(range(1, 100)),
     #     csv_file=Config.LOCATION_FIELD_CSV_DIR,
