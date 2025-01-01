@@ -1,5 +1,5 @@
+from config import BaseConfig as config
 from src.pipelines.roof_detection import generate_model
-from config.config import BaseConfig as config
 from src.utils import get_torch_device
 
 
