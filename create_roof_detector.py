@@ -1,4 +1,4 @@
-from config import BaseConfig as config
+from solar_detection.config import BaseConfig as config
 from solar_detection.pipelines.roof_detection import generate_model
 from solar_detection.utils import get_torch_device
 

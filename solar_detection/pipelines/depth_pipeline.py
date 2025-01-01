@@ -3,7 +3,7 @@ from solar_detection.datatypes import Image
 from solar_detection.api.operations import DirectoryOperations
 from solar_detection.processing.image_processing.image_process import ImageProcessing
 from solar_detection.processing.depth_processing.depth_processing import DepthProcessing
-from config import BaseConfig as Config
+from solar_detection.config import BaseConfig as Config
 
 
 def prepare_image(input_directory: str, output_directory: str) -> List[Image]:

@@ -1,6 +1,6 @@
-from solar_detection.pipelines.solar_detection import generate_model
-from config.config import BaseConfig as config
+from solar_detection.config import BaseConfig as config
 from solar_detection.utils import get_torch_device
+from solar_detection.pipelines.solar_detection import generate_model
 
 
 if __name__ == "__main__":

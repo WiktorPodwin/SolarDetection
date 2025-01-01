@@ -8,8 +8,8 @@ import torch
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
-from config.config import BaseConfig
-from src import depth_pro
+from solar_detection.config import BaseConfig
+from solar_detection import depth_pro
 from solar_detection.depth_pro.eval.boundary_metrics import (
     SI_boundary_Recall,
     get_thresholds_and_weights,

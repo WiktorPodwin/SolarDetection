@@ -1,5 +1,5 @@
 from solar_detection.pipelines.roof_detection import extract_potential_roofs, prediction
-from config.config import BaseConfig as config
+from solar_detection.config import BaseConfig as config
 from solar_detection.utils import get_torch_device
 
 if __name__ == "__main__":
