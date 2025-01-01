@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 NAME = "solar_detection"
-VERSION = "0.1"
+VERSION = "0.2"
 DESCRIPTION = "Solar Detection"
 LONG_DESCRIPTION = "Solar Detection"
 
