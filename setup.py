@@ -10,7 +10,7 @@ setup(
     version=VERSION,
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
-    packages=find_packages(exclude=("data",)),
+    packages=find_packages(),
     package_dir={"solar_detection": "src"},
     install_requires=[
         "numpy<2",
