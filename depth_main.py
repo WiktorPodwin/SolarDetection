@@ -1,5 +1,5 @@
-import solar_detection.solar_detection.metrics
-import solar_detection.solar_detection.solar_detector
+import solar_detection.solar_detector.metrics
+import solar_detection.solar_detector.solar_detector
 from solar_detection.pipelines.depth_pipeline import depth_run
 from solar_detection.config import BaseConfig as Config
 
