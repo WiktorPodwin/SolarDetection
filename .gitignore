@@ -1,5 +1,6 @@
 # ML models
 /checkpoints/*
+solar_detection/checkpoints/*
 models
 !/checkpoints/get_pretrained_models.sh
 

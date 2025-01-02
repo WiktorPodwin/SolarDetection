@@ -25,5 +25,6 @@ setup(
         "pandas==2.2.3",
         "seaborn==0.13.2",
         "scikit-learn==1.5.2",
+        "google_cloud_storage==2.19.0",
     ],
 )
