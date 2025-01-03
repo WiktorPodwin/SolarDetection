@@ -14,8 +14,8 @@ def plot(
     images_dir: str = "",
 ):
     plot_id = "281411_2.0001.295"
-    df = pd.read_csv(csv_file, skipinitialspace=True)
-    logging.debug(df.head())
+    # df = pd.read_csv(csv_file, skipinitialspace=True)
+    # logging.debug(df.head())
 
     dir_oper = DirectoryOperations()
     dir_oper.create_directory(images_dir)

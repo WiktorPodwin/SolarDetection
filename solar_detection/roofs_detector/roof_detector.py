@@ -11,7 +11,7 @@ class RoofDetector(nn.Module):
             in_channels (int): The number of input channels 
             dropout_rate (float): Probability of dropping a random neuron
         """
-        super(RoofDetector, self).__init__()
+        super().__init__()
         self.conv1 = nn.Conv2d(in_channels, out_channels=8, kernel_size=3, stride=1, padding=1)
         self.bn1 = nn.BatchNorm2d(8)
         self.conv2 = nn.Conv2d(in_channels=8, out_channels=16, kernel_size=3, stride=1, padding=1)
