@@ -7,11 +7,12 @@ logging.basicConfig(level=logging.INFO)
 
 @define
 class BaseConfig:
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     GEOPORTAL_URL = "https://polska.geoportal2.pl/map/www/mapa.php?mapa=polska"
-    DATA_DIR = os.path.join(BASE_DIR, "data")
+    DATA_DIR = os.path.join(BASE_DIR, "solar_detection/data")
     IMAGES_DIR = os.path.join(DATA_DIR, "images")
+    CUT_OUT_IMAGES_DIR = os.path.join(DATA_DIR, "cut_out_plots")
     DEPTH_DIR =  os.path.join(DATA_DIR, "depth")
     BUILDING_DETECTION_DIR = os.path.join(DATA_DIR, "potential_buildings")
     ROOFS_DIR = os.path.join(DATA_DIR, "roofs")
@@ -27,9 +28,9 @@ class BaseConfig:
     CHECKPOINTS_DIR = os.path.join(BASE_DIR, "checkpoints")
 
     ROOF_MODEL = os.path.join(CHECKPOINTS_DIR, "roof_detector.pt")
-    ROOF_METRICS_DIR = os.path.join(BASE_DIR, "src/roofs_detection/metrics")
+    ROOF_METRICS_DIR = os.path.join(BASE_DIR, "solar_detection/roofs_detection/metrics")
 
     SOLAR_ROOF_MODEL = os.path.join(CHECKPOINTS_DIR, "solar_roof_detector.pt")
-    SOLAR_ROOF_METRICS_DIR = os.path.join(BASE_DIR, "src/solar_detection/metrics")
+    SOLAR_ROOF_METRICS_DIR = os.path.join(BASE_DIR, "solar_detection/solar_detection/metrics")
 
     USE_GS = os.getenv("USE_GS", "False") == "True"
