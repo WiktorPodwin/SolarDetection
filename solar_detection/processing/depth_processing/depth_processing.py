@@ -215,12 +215,13 @@ class DepthProcessing:
 
         original_size_inverse_depth_normalized = (
             image_processing.restore_original_size_from_rectangle(
-                color_depth_bgr, rectangle_shape
+                color_depth_bgr, rectangle_shape, mask.shape
             )
         )
         original_size_inverse_depth_normalized = (
             original_size_inverse_depth_normalized.astype("uint8")
         )
+
         return image_processing.apply_mask(
             original_size_inverse_depth_normalized, mask
         )

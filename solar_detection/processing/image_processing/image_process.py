@@ -304,3 +304,20 @@ class ImageProcessing:
             final_image = np.where(image[:, :, :] != 0, image, final_image)
 
         return final_image
+
+
+    def crop_image(
+        self, image: np.ndarray, x: int, y: int, w: int, h: int
+    ) -> np.ndarray:
+        """
+        Crops an image to the specified dimensions
+        Args:
+            image (np.ndarray): Image matrix
+            x (int): x-coordinate of the top-left corner
+            y (int): y-coordinate of the top-left corner
+            w (int): Width of the cropped image
+            h (int): Height of the cropped image
+        Returns:
+            np.ndarray: Cropped image matrix
+        """
+        return image[y : y + h, x : x + w]
