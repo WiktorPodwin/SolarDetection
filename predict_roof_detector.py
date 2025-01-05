@@ -8,3 +8,5 @@ if __name__ == "__main__":
     )
     device = get_torch_device()
     prediction(device, potential_roofs, config.ROOF_MODEL, config.ROOFS_DIR)
+    pred, labels = prediction(device, config.SOLAR_ROOF_MODEL, config.ROOFS_DIR)
+    

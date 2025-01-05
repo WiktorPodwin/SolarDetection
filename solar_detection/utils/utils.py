@@ -8,14 +8,15 @@ from solar_detection.datatypes import Image
 
 
 def plot(
-    field_ids: List[str | int],
+    field_ids: List[str | int] | int | str,
     csv_file: str = "",
     website: str = "",
     images_dir: str = "",
+    plot_id: str = "281411_2.0001.295"
 ):
-    plot_id = "281411_2.0001.295"
-    df = pd.read_csv(csv_file, skipinitialspace=True)
-    logging.debug(df.head())
+    
+    if not isinstance(field_ids, list):
+        field_ids = [field_ids]
 
     dir_oper = DirectoryOperations()
     dir_oper.create_directory(images_dir)

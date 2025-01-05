@@ -6,10 +6,10 @@ import torch
 from solar_detection.datatypes import Image
 from solar_detection.utils import upload_csv_file
 from solar_detection.utils.model import prepare_from_csv_and_dir, train_model, predict, EvaluateMetrics
-from solar_detection.roofs_detection.prepare_data import prepare_for_prediction
+from solar_detection.roofs_detector.prepare_data import prepare_for_prediction
 from solar_detection.processing.image_processing.image_process import ImageProcessing
 from solar_detection.api.operations.data_operations import DirectoryOperations
-from solar_detection.roofs_detection.roof_detector import RoofDetector
+from solar_detection.roofs_detector.roof_detector import RoofDetector
 
 def extract_potential_roofs(base_dir: str, depth_dir: str, potential_roofs_dir: str) -> List[Image]:
     """
