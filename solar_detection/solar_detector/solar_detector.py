@@ -11,7 +11,7 @@ class SolarRoofDetector(nn.Module):
             in_channels (int): The number of input channels 
             dropout_rate (float): Probability of dropping a random neuron
         """
-        super(SolarRoofDetector, self).__init__()
+        super().__init__()
 
         self.conv1 = nn.Conv2d(in_channels=in_channels, out_channels=16, kernel_size=3, stride=1, padding=1)
         self.bn1 = nn.BatchNorm2d(16)
