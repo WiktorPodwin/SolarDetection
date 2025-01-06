@@ -25,7 +25,7 @@ class BaseConfig:
     LOCATION_CSV_FILE = os.path.join(DATA_DIR, "locations.csv")
     BUILDINGS_CSV_FILE = os.path.join(DATA_DIR, "potential_buildings.csv")
 
-    CHECKPOINTS_DIR = os.path.join(BASE_DIR, "solar_detection/checkpoints")
+    CHECKPOINTS_DIR = os.path.join(BASE_DIR, "checkpoints")
 
     ROOF_MODEL = os.path.join(CHECKPOINTS_DIR, "roof_detector.pt")
     ROOF_METRICS_DIR = os.path.join(BASE_DIR, "solar_detection/roofs_detector/metrics")
