@@ -9,7 +9,7 @@ from solar_detection.pipelines.solar_detection import prediction as solar_predic
 
 if __name__ == "__main__":
     device = get_torch_device()
-    # plot(3, website=Sol`arConfig.GEOPORTAL_URL, images_dir=SolarConfig.IMAGES_DIR)
+    # plot(3, website=SolarConfig.GEOPORTAL_URL, images_dir=SolarConfig.IMAGES_DIR)
     depth_run()
     potential_roofs = extract_potential_roofs(
         SolarConfig.IMAGES_DIR,
