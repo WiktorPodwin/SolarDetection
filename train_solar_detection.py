@@ -5,9 +5,9 @@ from solar_detection.pipelines.solar_detection import generate_model
 
 if __name__ == "__main__":
     # Generate more images
-    fill_data_for_training(
-        config.LOCATION_CSV_FILE, config.ROOFS_DIR, [60, 90, 120, 180]
-    )
+    # fill_data_for_training(
+    #     config.LOCATION_CSV_FILE, config.ROOFS_DIR, [60, 150, 270]
+    # )
 
     device = get_torch_device()
 
@@ -18,9 +18,9 @@ if __name__ == "__main__":
         num_epochs=25,
         model_path=config.SOLAR_ROOF_MODEL,
         metrics_dir=config.SOLAR_ROOF_METRICS_DIR,
-        data_multiplier=2,
+        data_multiplier=1,
         resize_val=(224, 224),
-        learning_rate=0.0005,
+        learning_rate=0.0008,
         batch_size=16,
         accumulation_steps=4,
     )

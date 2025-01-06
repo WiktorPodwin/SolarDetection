@@ -34,7 +34,7 @@ def rotate_image(image: Image, angle: int) -> Image:
     )
 
 
-def rotate_images_in_dir(images_dir: str, angle: int) -> None:
+def rotate_images_in_dir(images_dir: str, images: List[str], angle: int) -> None:
     """
     Rotate all images in a directory by a given angle.
 
@@ -42,14 +42,14 @@ def rotate_images_in_dir(images_dir: str, angle: int) -> None:
         images_dir (str): The directory containing the images.
         angle (int): The angle to rotate the images by.
     """
-    dir_oper = DirectoryOperations()
-    images = dir_oper.list_directory(images_dir)
     for image in images:
         image_path = f"{images_dir}/{image}"
         rotated_image_path = f"{images_dir}/rotated-{angle}-{image}"
         cv2_image = cv2.imread(image_path)
         rotated_image = cv2.rotate(cv2_image, angle)
         cv2.imwrite(rotated_image_path, rotated_image)
+        print(f"Rotated image: {rotated_image_path}")
+        print(f"Original image: {image_path}")
 
 
 def rotate_for_training(images_dir: str, angles: List[int]) -> None:
@@ -58,8 +58,10 @@ def rotate_for_training(images_dir: str, angles: List[int]) -> None:
     Args:
         images_dir (str): Directory containing the images.
     """
+    dir_oper = DirectoryOperations()
+    images = dir_oper.list_directory(images_dir)
     for angle in angles:
-        rotate_images_in_dir(images_dir, angle)
+        rotate_images_in_dir(images_dir, images, angle)
 
 
 def fill_csv_for_training(csv_file: str, angles: List[int]) -> None:

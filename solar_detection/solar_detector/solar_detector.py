@@ -15,20 +15,30 @@ class SolarRoofDetector(nn.Module):
 
         self.conv1 = nn.Conv2d(in_channels=in_channels, out_channels=16, kernel_size=3, stride=1, padding=1)
         self.bn1 = nn.BatchNorm2d(16)
+
         self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=1)
         self.bn2 = nn.BatchNorm2d(32)
+
         self.conv3 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
         self.bn3 = nn.BatchNorm2d(64)
 
         self.conv4 = nn.Conv2d(in_channels=64, out_channels=32, kernel_size=3, stride=1, padding=1)
         self.bn4 = nn.BatchNorm2d(32)
+
         self.conv5 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
         self.bn5 = nn.BatchNorm2d(64)
 
         self.conv6 = nn.Conv2d(in_channels=64, out_channels=32, kernel_size=3, stride=1, padding=1)
         self.bn6 = nn.BatchNorm2d(32)
+
         self.conv7 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
         self.bn7 = nn.BatchNorm2d(64)
+
+        self.conv8 = nn.Conv2d(in_channels=64, out_channels=32, kernel_size=3, stride=1, padding=1)
+        self.bn8 = nn.BatchNorm2d(32)
+
+        self.conv9 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
+        self.bn9 = nn.BatchNorm2d(64)
 
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
         self.pool2 = nn.AdaptiveAvgPool2d(1)
