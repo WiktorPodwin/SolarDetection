@@ -121,19 +121,24 @@ class BuildTrainTestDataset(Dataset):
         else:
             return image
 
-def prepare_from_csv_and_dir(csv_file: str, 
+def prepare_from_csv_and_dir(csv_file: str,
+                             label: str, 
                              img_dir: str, 
                              data_multiplier: int, 
-                             resize_val: int | Tuple[int, int] = None,
+                             plot_id: str = "id",
+                             resize_val: int = None,
                              batch_size: int = 32) -> Tuple[DataLoader, DataLoader, List[int], pd.Series]:
     """
     Divides the data for training and testing datasets and prepares them to model input
 
     Args:
-        data_multiplier (int): Data multiplication number
         csv_file (str): Path to the csv file with image names and labels.
-        image_dir (str): Directory with all the images.
-        resize_val (int | Tuple[int, int]): Shape of resized image
+        label (str): Name of the columns storing labels in csv file
+        img_dir (str): Directory with all the images.
+        data_multiplier (int): Data multiplication number
+        plot_id (str): Name of the columns storing plot ID in csv file
+        resize_val (int): Shape of resized image
+        batch_size (int): Number of samples in batch
     
     Returns:
         Tuple[DataLoader, DataLoader, List[int], pd.Series]: 
@@ -142,16 +147,15 @@ def prepare_from_csv_and_dir(csv_file: str,
          - List of test labels
          - Data classes distribution
     """
-    data = pd.read_csv(csv_file)
-
     list_plots = DirectoryOperations.list_directory(img_dir)
-    data.iloc[:, 0] = data.iloc[:, 0].str.replace("-", "_", regex=False)
-    data.iloc[:, 0] += ".png"
-    data = data[data.iloc[:, 0].isin(list_plots)]
+    df = pd.read_csv(csv_file)
+    df[plot_id] = df[plot_id].str.replace("-", "_", regex=False)
+    df[plot_id] += ".png"
+    df = df[df[plot_id].isin(list_plots)]
 
-    x_data = data.iloc[:, 0]
-    y_data = data.iloc[:, 1]
-    x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.15, random_state=42)
+    x_data = df[plot_id]
+    y_data = df[label]
+    x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.0001)
     
     class_distribution = y_data.value_counts()
     train = []
@@ -159,7 +163,7 @@ def prepare_from_csv_and_dir(csv_file: str,
 
     if resize_val:
         transform = transforms.Compose([
-                    transforms.Resize(resize_val),
+                    transforms.Resize((resize_val, resize_val)),
                     transforms.RandomHorizontalFlip(),
                     transforms.RandomRotation(degrees=180),
                     transforms.ToTensor(),

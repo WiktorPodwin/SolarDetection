@@ -30,7 +30,7 @@ def prepare_for_prediction(dir_path: str, img_shape: int = 256, batch_size: int 
         file_names.append(file[:-4])
     
     transform = transforms.Compose([
-                transforms.Resize(img_shape),
+                transforms.Resize((img_shape, img_shape)),
                 transforms.ToTensor(),
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
                 ])

@@ -37,8 +37,8 @@ def train_model(device: torch.device,
     decision = torch.cuda.is_available()
     if decision:
         scaler = GradScaler()
-    
-    pos_weight = torch.tensor([class_distribution[0] / class_distribution[1]]).to(device)
+
+    pos_weight = torch.tensor([class_distribution[1] / class_distribution[0]]).to(device)
     criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=0.0005)
     

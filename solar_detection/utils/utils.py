@@ -2,11 +2,9 @@ import logging
 from typing import Any, List
 import cv2
 import pandas as pd
-import selenium.common
 import torch
 from solar_detection.api.operations import (
     DirectoryOperations,
-    MapOperations,
     GSOperations,
 )
 from solar_detection.datatypes import Image
@@ -92,33 +90,6 @@ def fill_data_for_training(csv_file: str, images_dir: str, angles: List[int]) ->
     rotate_for_training(images_dir, angles)
 
 
-def plot(
-    field_ids: List[str | int] | int | str,
-    csv_file: str = "",
-    website: str = "",
-    images_dir: str = "",
-    plot_id: str = "281411_2.0001.295",
-):
-
-    if not isinstance(field_ids, list):
-        field_ids = [field_ids]
-
-    dir_oper = DirectoryOperations()
-    dir_oper.create_directory(images_dir)
-    dir_oper.clear_directory(images_dir)
-
-    map_oper = MapOperations(website=website, image_path=images_dir)
-    map_oper.prepare_map()
-
-    for field_id in field_ids:
-        try:
-            map_oper.handle_plot(f"{plot_id}/{field_id}")
-        except selenium.common.exceptions.UnexpectedAlertPresentException:
-            print("Alert present")
-
-    map_oper.quit_map()
-
-
 def upload_to_gs(
     project_id: str = "",
     bucket_name: str = "",
@@ -153,7 +124,7 @@ def upload_csv_file(csv_file: str, images_params: List[Image]) -> None:
 
 
 def apply_pred_to_csv(
-    csv_file: str, pred: List[int], labels: List[str], col_name: str
+    csv_file: str, pred: List[int], labels: List[str], pred_col: str, change_dash: bool = True
 ) -> None:
     """
     Updates a CSV file with a new column based on predictions.
@@ -162,13 +133,35 @@ def apply_pred_to_csv(
         csv_file (str): Path to the CSV file.
         pred (List[int]): List of predictions.
         labels (List[str]): List of plot labels.
-        col_name (str): Name of the new column to be added/changed.
+        pred_col (str): Name of the column for storing predictions to be added/changed.
+        change_dash (bool): If the last "_" should be changed into "-"
+
     """
-    plots = [plot.rsplit("_", 1)[0] + "-" + plot.rsplit("_", 1)[1] for plot in labels]
+    if change_dash:
+        labels = [plot.rsplit("_", 1)[0] + "-" + plot.rsplit("_", 1)[1] for plot in labels]
+
     df = pd.read_csv(csv_file)
+    df[pred_col] = 0
+    plot_to_pred = dict(zip(labels, pred))
 
-    df[col_name] = 0
-    plot_to_pred = dict(zip(plots, pred))
-
-    df[col_name] = df["id"].apply(lambda x: plot_to_pred.get(x, 0))
+    df[pred_col] = df["id"].apply(lambda x: plot_to_pred.get(x, 0))
     df.to_csv(csv_file, index=False)
+
+def compare_prediction_and_labels(csv_file: str, label: str, prediction: str, if_col: str = None) -> None:
+    """
+    Counts how many predictions have been classified well
+
+    Args:
+        csv_file (str): Path to the CSV file.
+        label (str): Column in the DataFrame storing labeled data.
+        prediction (str): Column in the DataFrame storing predicted data.
+        if_col (str): Condition, where value in this column has to be equal 1
+    """
+    df = pd.read_csv(csv_file)
+    if if_col:
+        df = df[df[if_col] == 1]
+
+    num_elements = len(df)
+    correct = (df[label] == df[prediction]).sum()
+
+    print("Performance: ", round(correct / num_elements, 2))

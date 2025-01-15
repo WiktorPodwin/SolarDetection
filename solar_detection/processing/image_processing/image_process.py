@@ -203,7 +203,7 @@ class ImageProcessing:
                                    ) -> Tuple[np.ndarray, 
                                               Optional[Tuple[int,...]]]:
         """
-        Cuts out rescatgle around plot from image with mask
+        Cuts out rectangle around plot from image with mask
         
         Args:
             image (np.ndarray): Image matrix

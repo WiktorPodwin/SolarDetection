@@ -13,14 +13,17 @@ if __name__ == "__main__":
 
     generate_model(
         device=device,
-        csv_file_path=config.LOCATION_CSV_FILE,
-        potential_roofs_dir=config.ROOFS_DIR,
-        num_epochs=25,
+        csv_file_path=config.BUILDINGS_CSV_FILE,
+        roof_label="is_roof",
+        solar_label="panel_on_roof",
+        potential_roofs_dir=config.BUILDING_DETECTION_DIR,
+        roofs_dir=config.ROOFS_DIR,
+        num_epochs=70,
         model_path=config.SOLAR_ROOF_MODEL,
         metrics_dir=config.SOLAR_ROOF_METRICS_DIR,
-        data_multiplier=1,
-        resize_val=(224, 224),
-        learning_rate=0.0008,
-        batch_size=16,
-        accumulation_steps=4,
+        data_multiplier=2,
+        resize_val=256,
+        learning_rate=0.0001,
+        batch_size=8,
+        accumulation_steps=1
     )
