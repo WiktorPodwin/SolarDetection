@@ -18,7 +18,7 @@ if __name__ == "__main__":
         solar_label="panel_on_roof",
         potential_roofs_dir=config.BUILDING_DETECTION_DIR,
         roofs_dir=config.ROOFS_DIR,
-        num_epochs=70,
+        num_epochs=100,
         model_path=config.SOLAR_ROOF_MODEL,
         metrics_dir=config.SOLAR_ROOF_METRICS_DIR,
         data_multiplier=2,

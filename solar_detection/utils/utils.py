@@ -90,6 +90,13 @@ def fill_data_for_training(csv_file: str, images_dir: str, angles: List[int]) ->
     rotate_for_training(images_dir, angles)
 
 
+
+
+
+
+
+
+
 def upload_to_gs(
     project_id: str = "",
     bucket_name: str = "",
@@ -110,10 +117,6 @@ def get_torch_device() -> torch.device:
     elif torch.backends.mps.is_available():
         device = torch.device("mps")
     return device
-
-
-def load_csv_df(csv_file: str, header: int | List[Any] | None = None) -> pd.DataFrame:
-    return pd.read_csv(csv_file, skipinitialspace=True, header=header)
 
 
 def upload_csv_file(csv_file: str, images_params: List[Image]) -> None:
@@ -155,7 +158,7 @@ def compare_prediction_and_labels(csv_file: str, label: str, prediction: str, if
         csv_file (str): Path to the CSV file.
         label (str): Column in the DataFrame storing labeled data.
         prediction (str): Column in the DataFrame storing predicted data.
-        if_col (str): Condition, where value in this column has to be equal 1
+        if_col (str): Condition, where the value in this column has to be equal to 1.
     """
     df = pd.read_csv(csv_file)
     if if_col:
@@ -165,3 +168,33 @@ def compare_prediction_and_labels(csv_file: str, label: str, prediction: str, if
     correct = (df[label] == df[prediction]).sum()
 
     print("Performance: ", round(correct / num_elements, 2))
+
+
+def update_field_csv(pot_roof_csv: str, 
+                     pot_roof_lab: str, 
+                     field_csv: str, 
+                     field_lab: str, 
+                     pot_roof_id: str = 'id',
+                     field_id: str = 'id'
+                     ) -> None:
+    """
+    Updates original CSV file with predictions from potential roofs CSV file
+    
+    Args:
+        pot_roof_csv (str): Path to the CSV file storing potential roofs
+        pot_roof_lab (str): Label in potential roofs CSV file storing predictions
+        field_csv (str): Path to the CSV file storing original fields
+        field_lab (str): Label in original fields CSV file storing predictions
+        pot_roof_id (str): Column storing ID in oroginal fields CSV file
+        field_id (str): Column storing ID in potential roofs CSV file
+    """
+    fields = pd.read_csv(field_csv)
+    
+    roofs = pd.read_csv(pot_roof_csv)
+    roofs = roofs[roofs[pot_roof_lab] == 1][pot_roof_id]
+    roofs = roofs.apply(lambda x: "_".join(x.split("_")[:-2]) + "-" + x.split("_")[-2])
+    
+    fields[field_lab] = fields.apply(
+            lambda row: 1 if row[field_id] in roofs.values else 0, axis=1
+        )
+    fields.to_csv(field_csv, index=False)
