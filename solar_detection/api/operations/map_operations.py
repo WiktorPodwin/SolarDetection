@@ -28,6 +28,7 @@ class MapOperations:
         try:
             browser_oper = BrowserOperations(self.driver)
             browser_oper.find_by_class_name(class_name="ui-dialog-buttonset")
+            browser_oper.find_by_id(element_id="check_widoczna_7")
             browser_oper.find_by_id(element_id="check_widoczna_8")
             browser_oper.find_by_id("button_rozwin_27")
         except MapException as e:

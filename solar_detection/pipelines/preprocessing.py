@@ -1,4 +1,5 @@
 import selenium.common
+import pandas as pd
 
 from typing import List
 from solar_detection.api.operations import (
@@ -8,25 +9,26 @@ from solar_detection.api.operations import (
 )
 
 def plot(
-    field_ids: List[str | int] | int | str,
+    csv_file: str,
     website: str = "",
     images_dir: str = "",
-    plot_id: str = "281411_2.0001.295",
+    id_col: str = "id"
 ):
-
-    if not isinstance(field_ids, list):
-        field_ids = [field_ids]
+    df = pd.read_csv(csv_file)
+    df = df[id_col]
 
     dir_oper = DirectoryOperations()
     dir_oper.create_directory(images_dir)
-    # dir_oper.clear_directory(images_dir)
 
     map_oper = MapOperations(website=website, image_path=images_dir)
     map_oper.prepare_map()
 
-    for field_id in field_ids:
+    for field_id in df:
         try:
-            map_oper.handle_plot(f"{plot_id}/{field_id}")
+            field_id = field_id.replace("-", "/")
+            print(field_id)
+            # map_oper.handle_plot(f"{plot_id}/{field_id}")
+            map_oper.handle_plot(field_id)
         except selenium.common.exceptions.UnexpectedAlertPresentException:
             print("Alert present")
 

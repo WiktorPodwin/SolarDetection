@@ -6,7 +6,7 @@ class SolarRoofDetector(nn.Module):
     """
     Solar detector on roofs model
     """
-    def __init__(self, in_channels: int = 3, dropout_rate: float = 0.):
+    def __init__(self, in_channels: int = 3, dropout_rate: float = 0.2):
             """
             Args:
                 in_channels (int): The number of input channels 
@@ -23,15 +23,12 @@ class SolarRoofDetector(nn.Module):
             self.bn4 = nn.BatchNorm2d(64)
             self.conv5 = nn.Conv2d(in_channels=64, out_channels=32, kernel_size=3, stride=1, padding=1)
             self.bn5 = nn.BatchNorm2d(32)
-            self.conv6 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
-            self.bn6 = nn.BatchNorm2d(64)
 
             self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
             self.pool2 = nn.AdaptiveMaxPool2d(1)
 
             self.dropout = nn.Dropout(p=dropout_rate)
             self.fc1 = nn.Linear(32, 1)
-            # self.sigmoid = nn.Sigmoid()
 
     def forward(self, x: Tensor) -> Tensor:
         """
@@ -48,10 +45,8 @@ class SolarRoofDetector(nn.Module):
         x = self.pool(nn.ReLU()(self.bn3(self.conv3(x))))
         x = self.pool(nn.ReLU()(self.bn4(self.conv4(x))))
         x = self.pool2(nn.ReLU()(self.bn5(self.conv5(x))))
-        # x = self.pool2(nn.ReLU()(self.bn6(self.conv6(x))))
 
         x = x.reshape(x.shape[0], -1)
         x = self.dropout(x)
         x = self.fc1(x)
-        # x = self.sigmoid(x)
         return x

@@ -22,7 +22,7 @@ class BaseConfig:
     SA_CREDENTIALS_PATH = os.path.join(BASE_DIR, "credentials.json")
     GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
 
-    LOCATION_CSV_FILE = os.path.join(DATA_DIR, "locations.csv")
+    LOCATION_CSV_FILE = os.path.join(DATA_DIR, "locations_1.csv")
     BUILDINGS_CSV_FILE = os.path.join(DATA_DIR, "potential_buildings.csv")
 
     CHECKPOINTS_DIR = os.path.join(BASE_DIR, "checkpoints")
