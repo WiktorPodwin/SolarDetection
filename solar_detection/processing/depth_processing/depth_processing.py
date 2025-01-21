@@ -179,7 +179,7 @@ class DepthProcessing:
 
         logging.info("Saving depth map to: %s", output_file)
         DirectoryOperations.create_directory(image_directory)
-        np.savez_compressed(output_file, depth=depth)
+        # np.savez_compressed(output_file, depth=depth)
 
         color_map_output_file = output_file + ".jpg"
         logging.info("Saving color-mapped depth to: : %s", color_map_output_file)
